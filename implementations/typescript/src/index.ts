@@ -77,6 +77,7 @@ export type {
   EndpointProtocol,
   AgentEndpoint,
   AgentCard,
+  SignedAgentCard,
 } from './types/agent-card.js';
 
 export type {

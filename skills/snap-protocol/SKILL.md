@@ -202,8 +202,11 @@ const nostr = new NostrTransport({
 // Publish card
 await nostr.publishAgentCard(card);
 
-// Discover agents
+// Discover agents via Nostr
 const agents = await nostr.discoverAgents({ skills: ['echo'] });
+
+// Discover an agent via HTTP well-known URL
+const card = await HttpTransport.discoverViaHttp('https://agent.example.com');
 ```
 
 ## Critical Constraints

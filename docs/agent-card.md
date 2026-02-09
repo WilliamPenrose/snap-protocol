@@ -244,6 +244,12 @@ Your Agent Card is published as a Nostr event:
 | `endpoint` | `["endpoint", "<proto>", "<url>"]` | Transport endpoint with protocol           |
 | `relay`    | `["relay", "<wss url>"]`           | Nostr relay for messaging                  |
 
+## Serving via HTTP
+
+Agent Cards can also be served at the well-known URL `GET /.well-known/snap-agent.json`. The response is a `SignedAgentCard` wrapper that includes a Schnorr signature for verifiability. See [Discovery](discovery.md#well-known-url-discovery) for the response format and verification steps.
+
+When using `SnapAgent` with `HttpTransport`, the well-known endpoint is served automatically.
+
 ## Querying Agent Cards
 
 Find agents by skill:

@@ -64,3 +64,18 @@ export interface AgentCard {
   iconUrl?: string;
   documentationUrl?: string;
 }
+
+/**
+ * A signed wrapper for serving AgentCards over unauthenticated channels (HTTP).
+ * The signature allows clients to verify the card's authenticity without TLS trust.
+ */
+export interface SignedAgentCard {
+  /** The agent card. */
+  card: AgentCard;
+  /** Schnorr signature (128 hex chars) over SHA-256(canonicalize(card) + "|" + timestamp). */
+  sig: string;
+  /** x-only tweaked public key (64 hex chars), derivable from card.identity. */
+  publicKey: string;
+  /** Unix timestamp (seconds) when the card was signed. */
+  timestamp: number;
+}

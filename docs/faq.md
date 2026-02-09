@@ -26,7 +26,7 @@ No. SNAP is currently in **v0.1 draft**. Expect breaking changes. Do not use in 
 
 ### When will v1.0 be released?
 
-See [ROADMAP.md](../ROADMAP.md) for the planned timeline. Estimated Q1 2026 for v1.0 stable release.
+No fixed timeline. SNAP is evolving based on real-world usage and community feedback. Follow the GitHub repository for updates.
 
 ## Identity & Security
 
@@ -313,4 +313,3 @@ See [LICENSE](../LICENSE) for details.
 
 - Watch the GitHub repository for releases
 - Read [CHANGELOG.md](../CHANGELOG.md) for updates
-- Follow roadmap progress in [ROADMAP.md](../ROADMAP.md)

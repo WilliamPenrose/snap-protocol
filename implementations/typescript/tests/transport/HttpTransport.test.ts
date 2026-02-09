@@ -1,6 +1,8 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { HttpTransport } from '../../src/transport/HttpTransport.js';
+import { KeyManager } from '../../src/crypto/KeyManager.js';
 import type { SnapMessage } from '../../src/types/message.js';
+import type { AgentCard } from '../../src/types/agent-card.js';
 
 const DUMMY_SIG = '0'.repeat(128);
 
@@ -508,5 +510,156 @@ describe('HttpTransport', () => {
     // Stream ends gracefully when the HTTP response body closes
     expect(received.length).toBeGreaterThanOrEqual(1);
     expect(received[0].id).toBe('before-end');
+  });
+
+  // --- Well-Known Agent Card Discovery ---
+
+  describe('well-known agent card', () => {
+    const TEST_KEY = '0000000000000000000000000000000000000000000000000000000000000001';
+    const pair = KeyManager.deriveKeyPair(TEST_KEY);
+
+    function makeCard(): { card: AgentCard; privateKey: string } {
+      return {
+        card: {
+          name: 'Test Agent',
+          description: 'A test agent',
+          version: '1.0.0',
+          identity: pair.address,
+          skills: [{ id: 'test', name: 'Test', description: 'Test skill', tags: ['test'] }],
+          defaultInputModes: ['text/plain'],
+          defaultOutputModes: ['text/plain'],
+        },
+        privateKey: TEST_KEY,
+      };
+    }
+
+    it('serves agent card at GET /.well-known/snap-agent.json', async () => {
+      const server = createTransport({ port: 0 });
+      const { card, privateKey } = makeCard();
+
+      server.setAgentCard(card, privateKey);
+      await server.listen(async () => makeResponse());
+
+      const res = await fetch(`http://127.0.0.1:${server.port}/.well-known/snap-agent.json`);
+      expect(res.status).toBe(200);
+
+      const body = await res.json();
+      expect(body.card).toBeDefined();
+      expect(body.card.name).toBe('Test Agent');
+      expect(body.sig).toBeDefined();
+      expect(body.publicKey).toBeDefined();
+      expect(body.timestamp).toBeTypeOf('number');
+    });
+
+    it('returns 404 when no agent card is set', async () => {
+      const server = createTransport({ port: 0 });
+      await server.listen(async () => makeResponse());
+
+      const res = await fetch(`http://127.0.0.1:${server.port}/.well-known/snap-agent.json`);
+      expect(res.status).toBe(404);
+    });
+
+    it('includes CORS headers', async () => {
+      const server = createTransport({ port: 0 });
+      const { card, privateKey } = makeCard();
+
+      server.setAgentCard(card, privateKey);
+      await server.listen(async () => makeResponse());
+
+      const res = await fetch(`http://127.0.0.1:${server.port}/.well-known/snap-agent.json`);
+      expect(res.headers.get('access-control-allow-origin')).toBe('*');
+    });
+
+    it('handles OPTIONS preflight', async () => {
+      const server = createTransport({ port: 0 });
+      const { card, privateKey } = makeCard();
+
+      server.setAgentCard(card, privateKey);
+      await server.listen(async () => makeResponse());
+
+      const res = await fetch(`http://127.0.0.1:${server.port}/.well-known/snap-agent.json`, {
+        method: 'OPTIONS',
+      });
+      expect(res.status).toBe(204);
+      expect(res.headers.get('access-control-allow-origin')).toBe('*');
+      expect(res.headers.get('access-control-allow-methods')).toBe('GET, OPTIONS');
+    });
+
+    it('does not interfere with POST handler', async () => {
+      const server = createTransport({ port: 0 });
+      const { card, privateKey } = makeCard();
+      const expectedResponse = makeResponse();
+
+      server.setAgentCard(card, privateKey);
+      await server.listen(async () => expectedResponse);
+
+      // POST still works
+      const client = createTransport();
+      const response = await client.send(makeMessage(), {
+        endpoint: `http://127.0.0.1:${server.port}`,
+      });
+      expect(response.id).toBe(expectedResponse.id);
+
+      // GET well-known also works
+      const res = await fetch(`http://127.0.0.1:${server.port}/.well-known/snap-agent.json`);
+      expect(res.status).toBe(200);
+    });
+
+    it('works alongside custom path config', async () => {
+      const server = createTransport({ port: 0, path: '/snap' });
+      const { card, privateKey } = makeCard();
+      const expectedResponse = makeResponse();
+
+      server.setAgentCard(card, privateKey);
+      await server.listen(async () => expectedResponse);
+
+      // Well-known works
+      const res = await fetch(`http://127.0.0.1:${server.port}/.well-known/snap-agent.json`);
+      expect(res.status).toBe(200);
+
+      // POST to custom path works
+      const client = createTransport();
+      const response = await client.send(makeMessage(), {
+        endpoint: `http://127.0.0.1:${server.port}/snap`,
+      });
+      expect(response.id).toBe(expectedResponse.id);
+    });
+
+    it('discoverViaHttp() fetches and verifies a card', async () => {
+      const server = createTransport({ port: 0 });
+      const { card, privateKey } = makeCard();
+
+      server.setAgentCard(card, privateKey);
+      await server.listen(async () => makeResponse());
+
+      const discovered = await HttpTransport.discoverViaHttp(`http://127.0.0.1:${server.port}`);
+      expect(discovered.name).toBe('Test Agent');
+      expect(discovered.identity).toBe(card.identity);
+    });
+
+    it('discoverViaHttp() rejects invalid signature', async () => {
+      const { Canonicalizer } = await import('../../src/crypto/Canonicalizer.js');
+      const { sha256 } = await import('@noble/hashes/sha256');
+      const { hexToBytes } = await import('@noble/hashes/utils');
+      const { schnorr } = await import('@noble/curves/secp256k1.js');
+
+      const server = createTransport({ port: 0 });
+      const { card, privateKey } = makeCard();
+
+      server.setAgentCard(card, privateKey);
+      await server.listen(async () => makeResponse());
+
+      // Fetch the signed card, tamper with it
+      const res = await fetch(`http://127.0.0.1:${server.port}/.well-known/snap-agent.json`);
+      const signed = await res.json();
+      signed.card.name = 'Tampered Agent';
+
+      // Verify the tampered card fails signature verification
+      const canonical = Canonicalizer.canonicalize(signed.card);
+      const sigInput = `${canonical}|${signed.timestamp}`;
+      const hash = sha256(new TextEncoder().encode(sigInput));
+      const valid = schnorr.verify(hexToBytes(signed.sig), hash, hexToBytes(signed.publicKey));
+      expect(valid).toBe(false);
+    });
   });
 });

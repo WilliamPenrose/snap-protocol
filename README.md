@@ -108,7 +108,7 @@ SNAP is **inspired by** [Google's A2A Protocol](https://github.com/a2aproject/A2
 |--------|-----|------|
 | Wire format | JSON-RPC 2.0 | Custom envelope with signature |
 | Identity | URL/Domain | Bitcoin P2TR address |
-| Discovery | `/.well-known/agent.json` | Nostr events |
+| Discovery | `/.well-known/agent.json` | Nostr events + `/.well-known/snap-agent.json` |
 | Authentication | HTTP layer (OAuth/API Key) | Message layer (Schnorr signature) |
 | Transport | HTTP | HTTP, WebSocket, Nostr |
 
@@ -120,7 +120,7 @@ If you know A2A concepts, you'll find SNAP familiar — but the protocols do not
 
 - [x] Core message format
 - [x] Identity layer (P2TR)
-- [x] Discovery layer (Nostr)
+- [x] Discovery layer (Nostr + HTTP Well-Known)
 - [x] Authentication (Schnorr)
 - [x] Transport (HTTP/WS/Nostr)
 - [x] TypeScript SDK ([`implementations/typescript/`](implementations/typescript/))

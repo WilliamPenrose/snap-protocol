@@ -12,6 +12,7 @@ import { MessageSigner } from '../messaging/MessageSigner.js';
 import { MessageValidator } from '../messaging/MessageValidator.js';
 import { SnapError } from '../errors/SnapError.js';
 import { KeyManager } from '../crypto/KeyManager.js';
+import { HttpTransport } from '../transport/HttpTransport.js';
 
 export interface SnapAgentConfig {
   privateKey: PrivateKeyHex;
@@ -85,6 +86,11 @@ export class SnapAgent {
   /** Start listening on all transports. */
   async start(): Promise<void> {
     for (const tp of this.transports) {
+      // Auto-configure well-known endpoint for HTTP transports
+      if (tp instanceof HttpTransport) {
+        tp.setAgentCard(this.card, this.privateKey);
+      }
+
       if (tp.listen) {
         await tp.listen((msg) => this.processMessage(msg));
       }

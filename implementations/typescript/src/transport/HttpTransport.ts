@@ -1,8 +1,17 @@
 import { createServer, type Server, type IncomingMessage, type ServerResponse } from 'node:http';
+import { sha256 } from '@noble/hashes/sha256';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
+import { schnorr } from '@noble/curves/secp256k1.js';
 import type { SnapMessage } from '../types/message.js';
 import type { TransportSendOptions, TransportLogger } from '../types/plugin.js';
 import type { StreamTransportPlugin } from '../types/transport.js';
+import type { AgentCard, SignedAgentCard } from '../types/agent-card.js';
+import type { PrivateKeyHex } from '../types/keys.js';
 import { ErrorCodes } from '../types/errors.js';
+import { Canonicalizer } from '../crypto/Canonicalizer.js';
+import { KeyManager } from '../crypto/KeyManager.js';
+
+const WELL_KNOWN_PATH = '/.well-known/snap-agent.json';
 
 export interface HttpTransportConfig {
   /** Port to listen on (default: 3000). */
@@ -25,6 +34,7 @@ export class HttpTransport implements StreamTransportPlugin {
   private server: Server | null = null;
   private handler: ((message: SnapMessage) => Promise<SnapMessage | void>) | null = null;
   private streamHandler: ((message: SnapMessage) => AsyncIterable<SnapMessage>) | null = null;
+  private signedCard: SignedAgentCard | null = null;
 
   constructor(config?: HttpTransportConfig) {
     this.config = {
@@ -135,6 +145,53 @@ export class HttpTransport implements StreamTransportPlugin {
     return undefined;
   }
 
+  /**
+   * Set the agent card to serve at GET /.well-known/snap-agent.json.
+   * The card is signed with the provided private key for verifiability.
+   */
+  setAgentCard(card: AgentCard, privateKey: PrivateKeyHex): void {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const canonical = Canonicalizer.canonicalize(card);
+    const sigInput = `${canonical}|${timestamp}`;
+    const hash = sha256(new TextEncoder().encode(sigInput));
+    const tweakedKey = KeyManager.tweakPrivateKey(privateKey);
+    const sig = bytesToHex(schnorr.sign(hash, hexToBytes(tweakedKey)));
+    const publicKey = KeyManager.p2trToPublicKey(card.identity);
+
+    this.signedCard = { card, sig, publicKey, timestamp };
+  }
+
+  /**
+   * Fetch and verify an agent card from a well-known URL.
+   * @param baseUrl The base URL of the agent (e.g., "https://agent.example.com")
+   * @returns The verified AgentCard, or throws if verification fails.
+   */
+  static async discoverViaHttp(baseUrl: string): Promise<AgentCard> {
+    const url = baseUrl.replace(/\/$/, '') + WELL_KNOWN_PATH;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Discovery failed: HTTP ${response.status} from ${url}`);
+    }
+    const signed = (await response.json()) as SignedAgentCard;
+
+    // Verify signature
+    const canonical = Canonicalizer.canonicalize(signed.card);
+    const sigInput = `${canonical}|${signed.timestamp}`;
+    const hash = sha256(new TextEncoder().encode(sigInput));
+    const valid = schnorr.verify(hexToBytes(signed.sig), hash, hexToBytes(signed.publicKey));
+    if (!valid) {
+      throw new Error(`Agent card signature verification failed for ${url}`);
+    }
+
+    // Verify public key matches identity
+    const expectedKey = KeyManager.p2trToPublicKey(signed.card.identity);
+    if (expectedKey !== signed.publicKey) {
+      throw new Error(`Public key mismatch: card identity ${signed.card.identity} does not match signing key`);
+    }
+
+    return signed.card;
+  }
+
   private async ensureServer(): Promise<void> {
     if (this.server) return;
 
@@ -154,6 +211,34 @@ export class HttpTransport implements StreamTransportPlugin {
   }
 
   private async handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
+    // Well-Known agent card endpoint
+    if (req.method === 'GET' && req.url === WELL_KNOWN_PATH) {
+      if (!this.signedCard) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Agent card not configured' }));
+        return;
+      }
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'public, max-age=300',
+      });
+      res.end(JSON.stringify(this.signedCard));
+      return;
+    }
+
+    // CORS preflight for well-known endpoint
+    if (req.method === 'OPTIONS' && req.url === WELL_KNOWN_PATH) {
+      res.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Max-Age': '86400',
+      });
+      res.end();
+      return;
+    }
+
     if (req.method !== 'POST' || req.url !== this.config.path) {
       res.writeHead(404, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Not found' }));

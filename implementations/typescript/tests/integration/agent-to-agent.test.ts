@@ -6,7 +6,7 @@ import { InMemoryReplayStore } from '../../src/stores/InMemoryReplayStore.js';
 import { InMemoryTaskStore } from '../../src/stores/InMemoryTaskStore.js';
 import { MessageBuilder } from '../../src/messaging/MessageBuilder.js';
 import { MessageSigner } from '../../src/messaging/MessageSigner.js';
-import type { AgentCard } from '../../src/types/agent-card.js';
+import type { AgentCard, SignedAgentCard } from '../../src/types/agent-card.js';
 import type { SnapMessage } from '../../src/types/message.js';
 import type { MessageSendRequest } from '../../src/types/payloads.js';
 
@@ -721,5 +721,104 @@ describe('Agent-to-Agent Integration', () => {
     for (const result of results) {
       expect(result.task.status.state).toBe('completed');
     }
+  });
+
+  // --- Well-Known Agent Card Discovery ---
+
+  it('SnapAgent.start() automatically serves agent card at well-known URL', async () => {
+    const httpA = new HttpTransport({ port: 0 });
+    const agentA = new SnapAgent({ privateKey: AGENT_A_KEY, card: makeCard('Discovery Agent') });
+    agentA.transport(httpA);
+
+    agentA.handle('message/send', async () => ({
+      task: { id: 'task-disc', status: { state: 'completed' as const, timestamp: new Date().toISOString() } },
+    }));
+
+    await agentA.start();
+    agents.push(agentA);
+
+    // Verify well-known endpoint is automatically configured
+    const res = await fetch(`http://127.0.0.1:${httpA.port}/.well-known/snap-agent.json`);
+    expect(res.status).toBe(200);
+
+    const signed = (await res.json()) as SignedAgentCard;
+    expect(signed.card.name).toBe('Discovery Agent');
+    expect(signed.card.identity).toBe(agentA.address);
+    expect(signed.sig).toHaveLength(128);
+    expect(signed.publicKey).toHaveLength(64);
+    expect(signed.timestamp).toBeTypeOf('number');
+  });
+
+  it('discover agent via well-known URL then communicate', async () => {
+    const httpA = new HttpTransport({ port: 0 });
+    const agentA = new SnapAgent({ privateKey: AGENT_A_KEY, card: makeCard('Discoverable Echo') });
+    agentA.transport(httpA);
+
+    agentA.handle('message/send', async (payload) => {
+      const msg = (payload as MessageSendRequest).message;
+      return {
+        task: {
+          id: 'task-after-disc',
+          status: { state: 'completed' as const, timestamp: new Date().toISOString() },
+          history: [
+            msg,
+            { messageId: 'resp-disc', role: 'agent' as const, parts: [{ type: 'text' as const, text: `Discovered: ${(msg.parts[0] as any).text}` }] },
+          ],
+        },
+      };
+    });
+
+    await agentA.start();
+    agents.push(agentA);
+
+    // Step 1: Discover agent card via well-known URL
+    const discoveredCard = await HttpTransport.discoverViaHttp(`http://127.0.0.1:${httpA.port}`);
+    expect(discoveredCard.name).toBe('Discoverable Echo');
+    expect(discoveredCard.identity).toBe(agentA.address);
+
+    // Step 2: Use discovered identity to communicate
+    const agentB = new SnapAgent({ privateKey: AGENT_B_KEY, card: makeCard('Discovery Client') });
+    agentB.transport(new HttpTransport());
+    agents.push(agentB);
+
+    const result = await agentB.sendMessage(
+      discoveredCard.identity,
+      `http://127.0.0.1:${httpA.port}`,
+      { messageId: 'msg-disc-1', role: 'user', parts: [{ type: 'text', text: 'Found you!' }] },
+    );
+
+    expect(result.task.id).toBe('task-after-disc');
+    expect((result.task.history![1].parts[0] as any).text).toBe('Discovered: Found you!');
+  });
+
+  it('well-known endpoint reflects skills from agent card', async () => {
+    const httpA = new HttpTransport({ port: 0 });
+    const card: AgentCard = {
+      name: 'Multi-Skill Agent',
+      description: 'Agent with multiple skills',
+      version: '2.0.0',
+      identity: '' as any,
+      skills: [
+        { id: 'code-gen', name: 'Code Generation', description: 'Generate code', tags: ['code'] },
+        { id: 'review', name: 'Code Review', description: 'Review code', tags: ['code'] },
+        { id: 'translate', name: 'Translation', description: 'Translate text', tags: ['nlp'] },
+      ],
+      defaultInputModes: ['text/plain'],
+      defaultOutputModes: ['text/plain'],
+    };
+
+    const agentA = new SnapAgent({ privateKey: AGENT_A_KEY, card });
+    agentA.transport(httpA);
+    agentA.handle('message/send', async () => ({
+      task: { id: 'task-skills', status: { state: 'completed' as const, timestamp: new Date().toISOString() } },
+    }));
+
+    await agentA.start();
+    agents.push(agentA);
+
+    const discovered = await HttpTransport.discoverViaHttp(`http://127.0.0.1:${httpA.port}`);
+    expect(discovered.skills).toHaveLength(3);
+    expect(discovered.skills.map((s) => s.id)).toEqual(['code-gen', 'review', 'translate']);
+    expect(discovered.version).toBe('2.0.0');
   });
 });

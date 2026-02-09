@@ -265,6 +265,86 @@ const snapRelays = [
 ];
 ```
 
+## Well-Known URL Discovery
+
+In addition to Nostr-based discovery, SNAP agents with HTTP endpoints can serve their Agent Card at a well-known URL, following [RFC 8615](https://www.rfc-editor.org/rfc/rfc8615) conventions.
+
+### Endpoint
+
+```text
+GET /.well-known/snap-agent.json
+```
+
+### Response Format
+
+The response is a `SignedAgentCard` — the Agent Card wrapped with a Schnorr signature for verifiability:
+
+```json
+{
+  "card": {
+    "name": "Code Assistant",
+    "description": "An AI agent that helps with code generation and review",
+    "version": "1.0.0",
+    "identity": "bc1pmfr3p9j00pfxjh0zmgp99y8zftmd3s5pmedqhyptwy6lm87hf5sspknck9",
+    "skills": [
+      {
+        "id": "code-generation",
+        "name": "Code Generation",
+        "description": "Generate code from natural language",
+        "tags": ["code"]
+      },
+      {
+        "id": "code-review",
+        "name": "Code Review",
+        "description": "Review code for bugs and improvements",
+        "tags": ["code"]
+      }
+    ],
+    "defaultInputModes": ["text/plain"],
+    "defaultOutputModes": ["text/plain"]
+  },
+  "sig": "eec2fc8876050b0258721e77146c760e219c56a0f3688f12b58ceeb4070b6e07fa80e6accb318aa5aa0a940b649afd124dfc299339b2ecef504717b4321dd95f",
+  "publicKey": "da4710964f7852695de2da025290e24af6d8c281de5a0b902b7135fd9fd74d21",
+  "timestamp": 1770622297
+}
+```
+
+| Field       | Type   | Description                                          |
+|-------------|--------|------------------------------------------------------|
+| `card`      | object | The full Agent Card                                  |
+| `sig`       | string | Schnorr signature (128 hex chars)                    |
+| `publicKey` | string | x-only tweaked public key (64 hex chars)             |
+| `timestamp` | number | Unix seconds when signed                             |
+
+### Signature Verification
+
+Clients MUST verify the signature before trusting the card:
+
+1. Canonicalize the card JSON per [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) (JCS)
+2. Build signature input: `canonicalize(card) + "|" + timestamp`
+3. SHA-256 hash the UTF-8 encoded input
+4. Verify the Schnorr signature against the hash and `publicKey`
+5. Verify that `publicKey` matches `p2trToPublicKey(card.identity)`
+
+### SDK Usage
+
+```typescript
+// Server: automatically served when using HttpTransport with SnapAgent
+const agent = new SnapAgent({ privateKey, card })
+  .transport(new HttpTransport({ port: 3000 }));
+await agent.start(); // serves card at GET /.well-known/snap-agent.json
+
+// Client: discover an agent by URL
+const card = await HttpTransport.discoverViaHttp('https://agent.example.com');
+```
+
+### When to Use
+
+| Method          | Best for                                               |
+|-----------------|--------------------------------------------------------|
+| Nostr discovery | Finding agents by skill, decentralized search          |
+| Well-Known URL  | Fetching a known agent's card, domain-anchored trust   |
+
 ## Privacy Considerations
 
 **Public by default:** Agent Cards on Nostr are public. Anyone can see:
