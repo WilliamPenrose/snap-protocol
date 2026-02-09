@@ -158,3 +158,17 @@ Default relay: `wss://snap.onspace.ai`
 Agents can use multiple relays for redundancy. Publish agent cards to all relays. Subscribe to all relays for incoming messages.
 
 Nostr transport does not support streaming (`message/stream`). Use HTTP or WebSocket for streaming responses.
+
+## Custom WebSocket Headers
+
+Pass `headers` in `NostrTransportConfig` to set custom HTTP headers (e.g. `User-Agent`) on WebSocket connections to relays. Node.js only — browsers do not allow custom WebSocket headers.
+
+```typescript
+const transport = new NostrTransport({
+  relays: ['wss://snap.onspace.ai'],
+  privateKey: myKey,
+  headers: {
+    'User-Agent': 'snap-cli/1.0.0',
+  },
+});
+```

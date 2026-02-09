@@ -362,6 +362,7 @@ Retry guidance per transport:
 - Connect to multiple relays for reliability
 - Cache relay connections
 - Handle relay disconnections gracefully
+- Pass `headers` in `NostrTransportConfig` to set custom HTTP headers (e.g. `User-Agent`) on WebSocket connections (Node.js only)
 
 ## Next Steps
 

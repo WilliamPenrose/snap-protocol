@@ -1516,6 +1516,34 @@ describe('NostrTransport', () => {
     await transport.close();
   });
 
+  // --- Headers config tests ---
+
+  it('constructs with custom headers', () => {
+    const transport = new NostrTransport({
+      relays: ['wss://relay.example.com'],
+      privateKey: SENDER_KEY,
+      headers: { 'User-Agent': 'snap-cli/1.0.0' },
+    });
+    expect(transport).toBeDefined();
+  });
+
+  it('constructs without headers (uses default WebSocket)', () => {
+    const transport = new NostrTransport({
+      relays: ['wss://relay.example.com'],
+      privateKey: SENDER_KEY,
+    });
+    expect(transport).toBeDefined();
+  });
+
+  it('constructs with empty headers object (uses default WebSocket)', () => {
+    const transport = new NostrTransport({
+      relays: ['wss://relay.example.com'],
+      privateKey: SENDER_KEY,
+      headers: {},
+    });
+    expect(transport).toBeDefined();
+  });
+
   it('fetchOfflineMessages() filters out messages with forged from address', async () => {
     const logs: Array<{ level: string; message: string }> = [];
     const transport = new NostrTransport({

@@ -1,6 +1,6 @@
 {
   "name": "@snap-protocol/core",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "SNAP Protocol core library — key encoding, signing, verification, message construction",
   "type": "module",
   "exports": {

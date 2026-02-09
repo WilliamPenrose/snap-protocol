@@ -6,8 +6,10 @@ import {
   type EventTemplate,
   type Filter,
 } from 'nostr-tools';
+import { useWebSocketImplementation } from 'nostr-tools/pool';
 import * as nip44 from 'nostr-tools/nip44';
 import { hexToBytes } from '@noble/hashes/utils';
+import WebSocket from 'ws';
 import type { SnapMessage } from '../types/message.js';
 import type { TransportPlugin, TransportSendOptions, TransportLogger } from '../types/plugin.js';
 import type { P2TRAddress } from '../types/keys.js';
@@ -40,6 +42,8 @@ export interface NostrTransportConfig {
   responseLookbackSeconds?: number;
   /** Optional logger for diagnostic events. */
   logger?: TransportLogger;
+  /** Optional HTTP headers to send with WebSocket connections (e.g. User-Agent). Node.js only. */
+  headers?: Record<string, string>;
 }
 
 export interface AgentDiscoveryFilter {
@@ -70,6 +74,21 @@ export class NostrTransport implements TransportPlugin {
       responseLookbackSeconds: config.responseLookbackSeconds ?? 5,
       logger: config.logger,
     };
+
+    // Inject custom WebSocket class with headers if configured.
+    // useWebSocketImplementation sets a module-level variable captured by SimplePool at construction time.
+    if (config.headers && Object.keys(config.headers).length > 0) {
+      const headers = config.headers;
+      const WSWithHeaders = class extends WebSocket {
+        constructor(url: string | URL) {
+          super(url, { headers });
+        }
+      };
+      useWebSocketImplementation(WSWithHeaders);
+    } else {
+      useWebSocketImplementation(WebSocket);
+    }
+
     this.pool = new SimplePool();
     this.secretKeyBytes = hexToBytes(config.privateKey);
     this.pubkey = getPublicKey(this.secretKeyBytes);
