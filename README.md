@@ -1,6 +1,6 @@
 # SNAP: Signed Network Agent Protocol
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Spec: CC BY 4.0](https://img.shields.io/badge/Spec-CC_BY_4.0-lightgrey.svg)](LICENSE-DOCS)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Spec: CC BY 4.0](https://img.shields.io/badge/Spec-CC_BY_4.0-lightgrey.svg)](docs/LICENSE)
 
 **An open protocol for secure agent-to-agent communication using self-sovereign identity.**
 
@@ -132,7 +132,7 @@ We'd love your input. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-- Specification documents (`docs/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — see [LICENSE-DOCS](LICENSE-DOCS)
+- Specification documents (`docs/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — see [docs/LICENSE](docs/LICENSE)
 - Reference implementations (`implementations/`): [MIT](LICENSE)
 - Test vectors and schemas: CC0 1.0 (Public Domain)
 
