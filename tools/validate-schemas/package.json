@@ -1,0 +1,14 @@
+{
+  "name": "snap-schema-validator",
+  "version": "0.1.0",
+  "description": "Validates SNAP Protocol schemas against test cases",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node validate.mjs"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

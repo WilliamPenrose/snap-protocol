@@ -1,0 +1,275 @@
+{
+  "description": "Schnorr signature test vectors for SNAP Protocol v0.1",
+  "version": "0.1",
+  "algorithm": "BIP-340 Schnorr over secp256k1",
+  "note": "Messages are signed with BIP-341 tweaked private keys. Verification uses the tweaked output key extracted from the P2TR address.",
+  "canonicalization": "JCS (RFC 8785) for payload, NULL byte (0x00) separator",
+  "hashFunction": "SHA-256",
+  "valid": [
+    {
+      "description": "message/send with empty payload",
+      "privateKey": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+      "internalPublicKey": "f76a39d05686e34a4420897e359371836145dd3973e3982568b60f8433adde6e",
+      "tweakedPublicKey": "2b07498923bde6b9779fde46f5308dec34f464f01929af5b66be30fc3e0b3011",
+      "message": {
+        "id": "msg-001",
+        "version": "0.1",
+        "from": "bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397",
+        "to": "bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200
+      },
+      "intermediates": {
+        "canonicalPayload": "{}",
+        "signatureInput": "msg-001\u0000bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397\u0000bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz\u0000request\u0000message/send\u0000{}\u00001738627200",
+        "signatureInputHex": "6d73672d3030310062633170397672356e7a667268686e746a61756c6d65723032767964617336306765387372793536376b6d78686363306330737478716773677365333937006263317038756a6a7036726c6a3876686c70306836787a6e373232676c6b376a76357537706576376330323476396d38757832396e713071636e6e68717a0072657175657374006d6573736167652f73656e64007b7d0031373338363237323030",
+        "sha256Hash": "d36a86d6b0dcb78217cd5a411b640538f14bda0b878e4cb8e29cc5e05395ff2c"
+      },
+      "expectedSignature": "e0c1cf76f60394a4dbc8cfed3c5a7524b606e4fec5ea299de7ae9b165cd22f794e5f4a8623a7d874dc969859eab2ed009095055dd3011226081d5a42f80590e5"
+    },
+    {
+      "description": "message/send with text message",
+      "privateKey": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+      "internalPublicKey": "f76a39d05686e34a4420897e359371836145dd3973e3982568b60f8433adde6e",
+      "tweakedPublicKey": "2b07498923bde6b9779fde46f5308dec34f464f01929af5b66be30fc3e0b3011",
+      "message": {
+        "id": "msg-002",
+        "version": "0.1",
+        "from": "bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397",
+        "to": "bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz",
+        "type": "request",
+        "method": "message/send",
+        "payload": {
+          "message": {
+            "messageId": "inner-001",
+            "role": "user",
+            "parts": [
+              {
+                "text": "Write a login form in React"
+              }
+            ]
+          }
+        },
+        "timestamp": 1738627200
+      },
+      "intermediates": {
+        "canonicalPayload": "{\"message\":{\"messageId\":\"inner-001\",\"parts\":[{\"text\":\"Write a login form in React\"}],\"role\":\"user\"}}",
+        "signatureInput": "msg-002\u0000bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397\u0000bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz\u0000request\u0000message/send\u0000{\"message\":{\"messageId\":\"inner-001\",\"parts\":[{\"text\":\"Write a login form in React\"}],\"role\":\"user\"}}\u00001738627200",
+        "signatureInputHex": "6d73672d3030320062633170397672356e7a667268686e746a61756c6d65723032767964617336306765387372793536376b6d78686363306330737478716773677365333937006263317038756a6a7036726c6a3876686c70306836787a6e373232676c6b376a76357537706576376330323476396d38757832396e713071636e6e68717a0072657175657374006d6573736167652f73656e64007b226d657373616765223a7b226d6573736167654964223a22696e6e65722d303031222c227061727473223a5b7b2274657874223a2257726974652061206c6f67696e20666f726d20696e205265616374227d5d2c22726f6c65223a2275736572227d7d0031373338363237323030",
+        "sha256Hash": "44117d2f463f47f778bd5c6a2bda89aa64c2fc6e42f3f13d3cef062346889968"
+      },
+      "expectedSignature": "9abdd4cb55408c03252d4290926e4838d1b704fca21986f67951a486fc2987fbda830cc4cd4535f19cb1d7217f4db2a0f494d27ec949bc660e2845bdd6ed5834"
+    },
+    {
+      "description": "tasks/get request",
+      "privateKey": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+      "internalPublicKey": "f76a39d05686e34a4420897e359371836145dd3973e3982568b60f8433adde6e",
+      "tweakedPublicKey": "2b07498923bde6b9779fde46f5308dec34f464f01929af5b66be30fc3e0b3011",
+      "message": {
+        "id": "msg-003",
+        "version": "0.1",
+        "from": "bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397",
+        "to": "bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz",
+        "type": "request",
+        "method": "tasks/get",
+        "payload": {
+          "taskId": "task-001",
+          "historyLength": 10
+        },
+        "timestamp": 1738627200
+      },
+      "intermediates": {
+        "canonicalPayload": "{\"historyLength\":10,\"taskId\":\"task-001\"}",
+        "signatureInput": "msg-003\u0000bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397\u0000bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz\u0000request\u0000tasks/get\u0000{\"historyLength\":10,\"taskId\":\"task-001\"}\u00001738627200",
+        "signatureInputHex": "6d73672d3030330062633170397672356e7a667268686e746a61756c6d65723032767964617336306765387372793536376b6d78686363306330737478716773677365333937006263317038756a6a7036726c6a3876686c70306836787a6e373232676c6b376a76357537706576376330323476396d38757832396e713071636e6e68717a0072657175657374007461736b732f676574007b22686973746f72794c656e677468223a31302c227461736b4964223a227461736b2d303031227d0031373338363237323030",
+        "sha256Hash": "db28ea20d626c8bae543a2ca97cde1193a87b50cb738a3d0eec611ba59383828"
+      },
+      "expectedSignature": "1b71114b2331a4658a891bd827a5b4e046e2686fda8045f9ff631c054d0fc294ce8c57f0738f005d327d541866ccaf54144b0963e26588ad1ed6d9e0559dad14"
+    },
+    {
+      "description": "tasks/cancel request",
+      "privateKey": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+      "internalPublicKey": "f76a39d05686e34a4420897e359371836145dd3973e3982568b60f8433adde6e",
+      "tweakedPublicKey": "2b07498923bde6b9779fde46f5308dec34f464f01929af5b66be30fc3e0b3011",
+      "message": {
+        "id": "msg-004",
+        "version": "0.1",
+        "from": "bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397",
+        "to": "bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz",
+        "type": "request",
+        "method": "tasks/cancel",
+        "payload": {
+          "taskId": "task-001"
+        },
+        "timestamp": 1738627200
+      },
+      "intermediates": {
+        "canonicalPayload": "{\"taskId\":\"task-001\"}",
+        "signatureInput": "msg-004\u0000bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397\u0000bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz\u0000request\u0000tasks/cancel\u0000{\"taskId\":\"task-001\"}\u00001738627200",
+        "signatureInputHex": "6d73672d3030340062633170397672356e7a667268686e746a61756c6d65723032767964617336306765387372793536376b6d78686363306330737478716773677365333937006263317038756a6a7036726c6a3876686c70306836787a6e373232676c6b376a76357537706576376330323476396d38757832396e713071636e6e68717a0072657175657374007461736b732f63616e63656c007b227461736b4964223a227461736b2d303031227d0031373338363237323030",
+        "sha256Hash": "da005d3345d00732f2cc5b83a64d2ab201d8d7cd984368d1bd59feccbeebc792"
+      },
+      "expectedSignature": "88f09f465c309ad4694dbb072faf431ec7142f9432fd2b186c2e560d40e119ec259fbe3d2d7e5490a8d944da33205729e3c4ef893ed25ff835daf094ac33f4a4"
+    },
+    {
+      "description": "response message (signed)",
+      "privateKey": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+      "internalPublicKey": "552c630b64b54bf50210c9e253d38bd4949c72e22873500f6285c2bede312a84",
+      "tweakedPublicKey": "3f2520e87f91d97f85f7d1853f2948fdbd26539e0e59ec3d5561767e1945981e",
+      "message": {
+        "id": "msg-005",
+        "version": "0.1",
+        "from": "bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz",
+        "to": "bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397",
+        "type": "response",
+        "method": "message/send",
+        "payload": {
+          "task": {
+            "id": "task-001",
+            "status": {
+              "state": "completed",
+              "timestamp": "2025-02-04T10:00:05Z"
+            }
+          }
+        },
+        "timestamp": 1738627205
+      },
+      "intermediates": {
+        "canonicalPayload": "{\"task\":{\"id\":\"task-001\",\"status\":{\"state\":\"completed\",\"timestamp\":\"2025-02-04T10:00:05Z\"}}}",
+        "signatureInput": "msg-005\u0000bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz\u0000bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397\u0000response\u0000message/send\u0000{\"task\":{\"id\":\"task-001\",\"status\":{\"state\":\"completed\",\"timestamp\":\"2025-02-04T10:00:05Z\"}}}\u00001738627205",
+        "signatureInputHex": "6d73672d303035006263317038756a6a7036726c6a3876686c70306836787a6e373232676c6b376a76357537706576376330323476396d38757832396e713071636e6e68717a0062633170397672356e7a667268686e746a61756c6d65723032767964617336306765387372793536376b6d7868636330633073747871677367736533393700726573706f6e7365006d6573736167652f73656e64007b227461736b223a7b226964223a227461736b2d303031222c22737461747573223a7b227374617465223a22636f6d706c65746564222c2274696d657374616d70223a22323032352d30322d30345431303a30303a30355a227d7d7d0031373338363237323035",
+        "sha256Hash": "fedf11dd9f94007d9c3adfb5fc9a3f1522e7694a64490720b3b4d2ef9dfbf4c3"
+      },
+      "expectedSignature": "44c89a55ec515aaefbfafa376aca5afee3587aee3b2f0547112dce0f933719eb026f94ba85c14c8e64ec9f74f0dee412eab4c9b1bbf83a2c9317a06d3591e73c"
+    },
+    {
+      "description": "message with unicode payload",
+      "privateKey": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+      "internalPublicKey": "f76a39d05686e34a4420897e359371836145dd3973e3982568b60f8433adde6e",
+      "tweakedPublicKey": "2b07498923bde6b9779fde46f5308dec34f464f01929af5b66be30fc3e0b3011",
+      "message": {
+        "id": "msg-006",
+        "version": "0.1",
+        "from": "bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397",
+        "to": "bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz",
+        "type": "request",
+        "method": "message/send",
+        "payload": {
+          "message": {
+            "messageId": "inner-006",
+            "role": "user",
+            "parts": [
+              {
+                "text": "Translate: 你好世界 🌍"
+              }
+            ]
+          }
+        },
+        "timestamp": 1738627200
+      },
+      "intermediates": {
+        "canonicalPayload": "{\"message\":{\"messageId\":\"inner-006\",\"parts\":[{\"text\":\"Translate: 你好世界 🌍\"}],\"role\":\"user\"}}",
+        "signatureInput": "msg-006\u0000bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397\u0000bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz\u0000request\u0000message/send\u0000{\"message\":{\"messageId\":\"inner-006\",\"parts\":[{\"text\":\"Translate: 你好世界 🌍\"}],\"role\":\"user\"}}\u00001738627200",
+        "signatureInputHex": "6d73672d3030360062633170397672356e7a667268686e746a61756c6d65723032767964617336306765387372793536376b6d78686363306330737478716773677365333937006263317038756a6a7036726c6a3876686c70306836787a6e373232676c6b376a76357537706576376330323476396d38757832396e713071636e6e68717a0072657175657374006d6573736167652f73656e64007b226d657373616765223a7b226d6573736167654964223a22696e6e65722d303036222c227061727473223a5b7b2274657874223a225472616e736c6174653a20e4bda0e5a5bde4b896e7958c20f09f8c8d227d5d2c22726f6c65223a2275736572227d7d0031373338363237323030",
+        "sha256Hash": "92ed3f529bc20bf70de6eee9c5713802567902a736b56f8493ad7211398ec1d2"
+      },
+      "expectedSignature": "2bfba07319c255acaf40f6db09008884fac47e35cbab5aa28d35f344fa35fbd47e345fdd189701dd5f39d6e43dac78d61bd9144afc61af602f13e3c8fc09abe9"
+    },
+    {
+      "description": "message/send continuing a task",
+      "privateKey": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+      "internalPublicKey": "f76a39d05686e34a4420897e359371836145dd3973e3982568b60f8433adde6e",
+      "tweakedPublicKey": "2b07498923bde6b9779fde46f5308dec34f464f01929af5b66be30fc3e0b3011",
+      "message": {
+        "id": "msg-007",
+        "version": "0.1",
+        "from": "bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397",
+        "to": "bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz",
+        "type": "request",
+        "method": "message/send",
+        "payload": {
+          "taskId": "task-001",
+          "message": {
+            "messageId": "inner-007",
+            "role": "user",
+            "parts": [
+              {
+                "text": "Add form validation"
+              }
+            ]
+          }
+        },
+        "timestamp": 1738627210
+      },
+      "intermediates": {
+        "canonicalPayload": "{\"message\":{\"messageId\":\"inner-007\",\"parts\":[{\"text\":\"Add form validation\"}],\"role\":\"user\"},\"taskId\":\"task-001\"}",
+        "signatureInput": "msg-007\u0000bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397\u0000bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz\u0000request\u0000message/send\u0000{\"message\":{\"messageId\":\"inner-007\",\"parts\":[{\"text\":\"Add form validation\"}],\"role\":\"user\"},\"taskId\":\"task-001\"}\u00001738627210",
+        "signatureInputHex": "6d73672d3030370062633170397672356e7a667268686e746a61756c6d65723032767964617336306765387372793536376b6d78686363306330737478716773677365333937006263317038756a6a7036726c6a3876686c70306836787a6e373232676c6b376a76357537706576376330323476396d38757832396e713071636e6e68717a0072657175657374006d6573736167652f73656e64007b226d657373616765223a7b226d6573736167654964223a22696e6e65722d303037222c227061727473223a5b7b2274657874223a2241646420666f726d2076616c69646174696f6e227d5d2c22726f6c65223a2275736572227d2c227461736b4964223a227461736b2d303031227d0031373338363237323130",
+        "sha256Hash": "3861455c3687e9d2e9a7c394abbabaf7a079bfa95bee24a8643a42f29111a8ad"
+      },
+      "expectedSignature": "22a886507fa88daf475c020a4ad03c552f13f4c80ce11dfc9cfe693211efcd3ad2ad11df0cf6202c56d58eefdcbc070d93a0986f0fc1e5840d626621c2ed3bcc"
+    }
+  ],
+  "invalid": [
+    {
+      "description": "tampered payload (text changed after signing)",
+      "message": {
+        "id": "msg-invalid-001",
+        "version": "0.1",
+        "from": "bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397",
+        "to": "bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz",
+        "type": "request",
+        "method": "message/send",
+        "payload": {
+          "message": {
+            "messageId": "inner-001",
+            "role": "user",
+            "parts": [
+              {
+                "text": "Tampered message"
+              }
+            ]
+          }
+        },
+        "timestamp": 1738627200
+      },
+      "signature": "46a0e2730f46f0d81a3719690ea199b76c8b0cad8c96c8721882684c9c64df39f626bfd288ac9b4a5fe86c8450596371adf4fbbbabb7666bda009598b53293ee",
+      "tweakedPublicKey": "2b07498923bde6b9779fde46f5308dec34f464f01929af5b66be30fc3e0b3011",
+      "reason": "Payload was modified after signing. Signature was computed over the original payload."
+    },
+    {
+      "description": "wrong signing key (from=A but signed with B's key)",
+      "message": {
+        "id": "msg-invalid-002",
+        "version": "0.1",
+        "from": "bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397",
+        "to": "bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200
+      },
+      "signature": "f6cacfc0c2903cb39340bfa0cad5f8e4edeb77fe6427e32bbc3d08b65bab6100743f7aa2e97698f09dc6ba4556222fd1d69181b06bf3427244837d97a4319584",
+      "tweakedPublicKey": "2b07498923bde6b9779fde46f5308dec34f464f01929af5b66be30fc3e0b3011",
+      "reason": "Message claims from=Agent A but was signed with Agent B's tweaked private key. Verification with A's tweaked public key fails."
+    },
+    {
+      "description": "tampered timestamp",
+      "message": {
+        "id": "msg-invalid-003",
+        "version": "0.1",
+        "from": "bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397",
+        "to": "bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627999
+      },
+      "signature": "79a276d0825ac647dee88bbbeb3f63172544151bbb2914c40af7811c5858d7f49c1cd3cf82fcfd9146ccabb17578c39c4dd888b062bb64653904713d7c04adaf",
+      "tweakedPublicKey": "2b07498923bde6b9779fde46f5308dec34f464f01929af5b66be30fc3e0b3011",
+      "reason": "Timestamp was changed from 1738627200 to 1738627999 after signing."
+    }
+  ]
+}

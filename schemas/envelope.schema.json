@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snap-protocol.org/schemas/0.1/envelope.schema.json",
+  "title": "SNAP Message Envelope",
+  "description": "The outer structure of a SNAP protocol message. Validates the envelope only; payload validation is method-specific.",
+
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "common.schema.json#/$defs/MessageId"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/ProtocolVersion"
+    },
+    "from": {
+      "title": "Sender Identity",
+      "description": "P2TR address of the message sender.",
+      "$ref": "common.schema.json#/$defs/P2TRAddress"
+    },
+    "to": {
+      "title": "Recipient Identity",
+      "description": "P2TR address of the message recipient.",
+      "$ref": "common.schema.json#/$defs/P2TRAddress"
+    },
+    "type": {
+      "$ref": "common.schema.json#/$defs/MessageType"
+    },
+    "method": {
+      "$ref": "common.schema.json#/$defs/MethodName"
+    },
+    "payload": {
+      "title": "Payload",
+      "description": "Method-specific data. Validated separately by per-method payload schemas.",
+      "type": "object",
+      "maxProperties": 100
+    },
+    "timestamp": {
+      "$ref": "common.schema.json#/$defs/UnixTimestamp"
+    },
+    "sig": {
+      "$ref": "common.schema.json#/$defs/SchnorrSignature"
+    }
+  },
+
+  "required": [
+    "id",
+    "version",
+    "from",
+    "to",
+    "type",
+    "method",
+    "payload",
+    "timestamp"
+  ],
+
+  "if": {
+    "properties": { "type": { "const": "request" } }
+  },
+  "then": {
+    "required": ["sig"]
+  },
+
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": {
+      "description": "Extension fields. Must use x- prefix. Ignored by receivers."
+    }
+  }
+}

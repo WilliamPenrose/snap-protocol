@@ -1,0 +1,260 @@
+{
+  "description": "Test cases for envelope.schema.json",
+  "schema": "../envelope.schema.json",
+  "tests": [
+    {
+      "description": "minimal valid request",
+      "data": {
+        "id": "msg-001",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233"
+      },
+      "valid": true
+    },
+    {
+      "description": "valid response without sig (optional for responses)",
+      "data": {
+        "id": "msg-002",
+        "version": "0.1",
+        "from": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "to": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "type": "response",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627205
+      },
+      "valid": true
+    },
+    {
+      "description": "valid response with sig",
+      "data": {
+        "id": "msg-002",
+        "version": "0.1",
+        "from": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "to": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "type": "response",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627205,
+        "sig": "11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff"
+      },
+      "valid": true
+    },
+    {
+      "description": "valid request with extension field (x- prefix)",
+      "data": {
+        "id": "msg-003",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233",
+        "x-trace-id": "abc123"
+      },
+      "valid": true
+    },
+    {
+      "description": "valid with testnet addresses",
+      "data": {
+        "id": "msg-004",
+        "version": "0.1",
+        "from": "tb1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqh6ye4r",
+        "to": "tb1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qshq7wla",
+        "type": "request",
+        "method": "tasks/get",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233"
+      },
+      "valid": true
+    },
+    {
+      "description": "INVALID: missing id",
+      "data": {
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233"
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: request without sig",
+      "data": {
+        "id": "msg-001",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: id with special characters",
+      "data": {
+        "id": "msg@001!",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233"
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: unknown type value",
+      "data": {
+        "id": "msg-001",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "notification",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233"
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: sig too short",
+      "data": {
+        "id": "msg-001",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "abc123"
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: sig with uppercase hex",
+      "data": {
+        "id": "msg-001",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "AABBCCDD00112233445566778899AABBCCDD00112233445566778899AABBCCDD00112233445566778899AABBCCDD00112233445566778899AABBCCDD00112233"
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: non-P2TR address (wrong prefix)",
+      "data": {
+        "id": "msg-001",
+        "version": "0.1",
+        "from": "bc1q5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233"
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: method wrong format (missing slash)",
+      "data": {
+        "id": "msg-001",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "sendMessage",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233"
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: timestamp is float",
+      "data": {
+        "id": "msg-001",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200.5,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233"
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: unknown field without x- prefix",
+      "data": {
+        "id": "msg-001",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233",
+        "customField": "should-fail"
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: negative timestamp",
+      "data": {
+        "id": "msg-001",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": -1,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233"
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: empty id",
+      "data": {
+        "id": "",
+        "version": "0.1",
+        "from": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "to": "bc1p4qhjn9zdvkux4e44uhx8tc55atqq8xey38e93agfvrg4qkkgs5qsg58g80",
+        "type": "request",
+        "method": "message/send",
+        "payload": {},
+        "timestamp": 1738627200,
+        "sig": "aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233445566778899aabbccdd00112233"
+      },
+      "valid": false
+    }
+  ]
+}

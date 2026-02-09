@@ -1,0 +1,28 @@
+# Claude Code CLI local configuration
+.claude/
+
+# Node modules
+node_modules/
+
+# Build output
+dist/
+*.tgz
+
+# Environment variables
+.env
+.env.local
+
+# OS specific files
+.DS_Store
+Thumbs.db
+nul
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Lock files (using npm)
+pnpm-lock.yaml
+yarn.lock

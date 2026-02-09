@@ -1,0 +1,90 @@
+{
+  "description": "JCS (RFC 8785) canonicalization test vectors for SNAP payloads",
+  "version": "0.1",
+  "note": "These test SNAP-specific payloads. For comprehensive JCS testing, see RFC 8785 Appendix B.",
+  "vectors": [
+    {
+      "description": "empty payload",
+      "input": {},
+      "expected": "{}"
+    },
+    {
+      "description": "key ordering",
+      "input": {
+        "z": "last",
+        "a": "first",
+        "m": "middle"
+      },
+      "expected": "{\"a\":\"first\",\"m\":\"middle\",\"z\":\"last\"}"
+    },
+    {
+      "description": "nested object key ordering",
+      "input": {
+        "message": {
+          "parts": [
+            {
+              "text": "hello"
+            }
+          ],
+          "role": "user",
+          "messageId": "inner-001"
+        }
+      },
+      "expected": "{\"message\":{\"messageId\":\"inner-001\",\"parts\":[{\"text\":\"hello\"}],\"role\":\"user\"}}"
+    },
+    {
+      "description": "message/send request payload",
+      "input": {
+        "message": {
+          "messageId": "inner-001",
+          "role": "user",
+          "parts": [
+            {
+              "text": "Write a login form in React"
+            }
+          ]
+        }
+      },
+      "expected": "{\"message\":{\"messageId\":\"inner-001\",\"parts\":[{\"text\":\"Write a login form in React\"}],\"role\":\"user\"}}"
+    },
+    {
+      "description": "payload with taskId (continuing a task)",
+      "input": {
+        "taskId": "task-001",
+        "message": {
+          "messageId": "inner-002",
+          "role": "user",
+          "parts": [
+            {
+              "text": "Add form validation"
+            }
+          ]
+        }
+      },
+      "expected": "{\"message\":{\"messageId\":\"inner-002\",\"parts\":[{\"text\":\"Add form validation\"}],\"role\":\"user\"},\"taskId\":\"task-001\"}"
+    },
+    {
+      "description": "tasks/get request payload",
+      "input": {
+        "taskId": "task-001",
+        "historyLength": 10
+      },
+      "expected": "{\"historyLength\":10,\"taskId\":\"task-001\"}"
+    },
+    {
+      "description": "unicode content in payload",
+      "input": {
+        "message": {
+          "messageId": "inner-003",
+          "role": "user",
+          "parts": [
+            {
+              "text": "Translate to Chinese: 你好世界"
+            }
+          ]
+        }
+      },
+      "expected": "{\"message\":{\"messageId\":\"inner-003\",\"parts\":[{\"text\":\"Translate to Chinese: 你好世界\"}],\"role\":\"user\"}}"
+    }
+  ]
+}

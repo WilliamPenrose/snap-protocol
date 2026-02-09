@@ -1,0 +1,17 @@
+{
+  "name": "snap-test-vector-generator",
+  "version": "0.1.0",
+  "description": "Generates test vectors for SNAP Protocol",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "node generate.mjs"
+  },
+  "dependencies": {
+    "@noble/curves": "^2.0.1",
+    "@noble/hashes": "^1.7.1",
+    "@noble/secp256k1": "^2.2.3",
+    "bech32": "^2.0.0",
+    "canonicalize": "^2.0.0"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snap-protocol.org/schemas/0.1/payloads/message-send.request.schema.json",
+  "title": "message/send Request Payload",
+  "description": "Payload for message/send requests. Sends a message to start a new task or continue an existing one.",
+
+  "type": "object",
+  "properties": {
+    "taskId": {
+      "title": "Task ID",
+      "description": "Include to continue an existing task. Omit to start a new task.",
+      "$ref": "../common.schema.json#/$defs/TaskId"
+    },
+    "message": {
+      "title": "Message",
+      "description": "The message to send.",
+      "$ref": "../types/task.schema.json#/$defs/InnerMessage"
+    },
+    "idempotencyKey": {
+      "title": "Idempotency Key",
+      "description": "Client-generated key for idempotent task creation. Optional, agent support not guaranteed in v0.1.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-zA-Z0-9_-]+$"
+    }
+  },
+
+  "required": ["message"],
+  "additionalProperties": false
+}

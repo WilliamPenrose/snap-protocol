@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snap-protocol.org/schemas/0.1/payloads/tasks-get.request.schema.json",
+  "title": "tasks/get Request Payload",
+  "description": "Payload for tasks/get requests. Retrieves the current state of a task.",
+
+  "type": "object",
+  "properties": {
+    "taskId": {
+      "$ref": "../common.schema.json#/$defs/TaskId"
+    },
+    "historyLength": {
+      "title": "History Length",
+      "description": "Maximum number of history messages to return.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000
+    }
+  },
+
+  "required": ["taskId"],
+  "additionalProperties": false
+}

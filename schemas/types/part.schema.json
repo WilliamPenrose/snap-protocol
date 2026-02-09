@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snap-protocol.org/schemas/0.1/types/part.schema.json",
+  "title": "SNAP Part",
+  "description": "Content unit within messages and artifacts. Must contain exactly one of: text, raw, url, or data. Enforce single-variant rule in code, not in this schema.",
+
+  "type": "object",
+  "properties": {
+    "text": {
+      "title": "Text Content",
+      "description": "Plain text or code content.",
+      "type": "string",
+      "maxLength": 10485760
+    },
+    "raw": {
+      "title": "Raw Content",
+      "description": "Base64-encoded binary content. Max 10 MB decoded.",
+      "type": "string",
+      "maxLength": 14000000
+    },
+    "url": {
+      "title": "URL Content",
+      "description": "URL reference to external content.",
+      "type": "string",
+      "maxLength": 2048,
+      "format": "uri"
+    },
+    "data": {
+      "title": "Structured Data",
+      "description": "Arbitrary JSON data.",
+      "type": "object"
+    },
+    "mediaType": {
+      "$ref": "../common.schema.json#/$defs/MediaType"
+    }
+  },
+
+  "additionalProperties": false,
+
+  "$defs": {
+    "TextPart": {
+      "title": "Text Part",
+      "description": "Part containing text content.",
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "maxLength": 10485760 },
+        "mediaType": { "$ref": "../common.schema.json#/$defs/MediaType" }
+      },
+      "additionalProperties": false
+    },
+    "RawPart": {
+      "title": "Raw Part",
+      "description": "Part containing base64-encoded binary content.",
+      "type": "object",
+      "required": ["raw", "mediaType"],
+      "properties": {
+        "raw": { "type": "string", "maxLength": 14000000 },
+        "mediaType": { "$ref": "../common.schema.json#/$defs/MediaType" }
+      },
+      "additionalProperties": false
+    },
+    "UrlPart": {
+      "title": "URL Part",
+      "description": "Part referencing external content via URL.",
+      "type": "object",
+      "required": ["url"],
+      "properties": {
+        "url": { "type": "string", "maxLength": 2048, "format": "uri" },
+        "mediaType": { "$ref": "../common.schema.json#/$defs/MediaType" }
+      },
+      "additionalProperties": false
+    },
+    "DataPart": {
+      "title": "Data Part",
+      "description": "Part containing structured JSON data.",
+      "type": "object",
+      "required": ["data"],
+      "properties": {
+        "data": { "type": "object" },
+        "mediaType": { "$ref": "../common.schema.json#/$defs/MediaType" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

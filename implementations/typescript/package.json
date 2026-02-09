@@ -1,0 +1,41 @@
+{
+  "name": "@snap-protocol/core",
+  "version": "0.4.0",
+  "description": "SNAP Protocol core library — key encoding, signing, verification, message construction",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run --exclude tests/integration/nostr-relay.integration.test.ts --exclude tests/integration/agent-nostr.integration.test.ts",
+    "test:watch": "vitest --exclude tests/integration/nostr-relay.integration.test.ts --exclude tests/integration/agent-nostr.integration.test.ts",
+    "test:relay": "vitest run tests/integration/nostr-relay.integration.test.ts tests/integration/agent-nostr.integration.test.ts",
+    "test:all": "vitest run"
+  },
+  "dependencies": {
+    "@noble/curves": "^2.0.1",
+    "@noble/hashes": "^1.7.1",
+    "bech32": "^2.0.0",
+    "canonicalize": "^2.0.0",
+    "nostr-tools": "^2.23.0",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "@types/ws": "^8.18.1",
+    "fast-check": "^4.5.3",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">= 20.0.0"
+  },
+  "license": "MIT"
+}

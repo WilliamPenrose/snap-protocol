@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snap-protocol.org/schemas/0.1/types/task.schema.json",
+  "title": "SNAP Task",
+  "description": "A unit of work that may span multiple message turns.",
+
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "../common.schema.json#/$defs/TaskId"
+    },
+    "contextId": {
+      "$ref": "../common.schema.json#/$defs/ContextId"
+    },
+    "status": {
+      "$ref": "#/$defs/TaskStatus"
+    },
+    "artifacts": {
+      "title": "Artifacts",
+      "description": "Output artifacts produced by this task.",
+      "type": "array",
+      "items": { "$ref": "artifact.schema.json" },
+      "maxItems": 100
+    },
+    "history": {
+      "title": "Message History",
+      "description": "Conversation history for this task.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/InnerMessage" }
+    }
+  },
+
+  "required": ["id", "status"],
+  "additionalProperties": false,
+
+  "$defs": {
+    "TaskStatus": {
+      "title": "Task Status",
+      "description": "Current status of a task.",
+      "type": "object",
+      "properties": {
+        "state": {
+          "$ref": "../common.schema.json#/$defs/TaskState"
+        },
+        "timestamp": {
+          "$ref": "../common.schema.json#/$defs/ISO8601Timestamp"
+        },
+        "message": {
+          "title": "Status Message",
+          "description": "Optional human-readable status message.",
+          "type": "string",
+          "maxLength": 1024
+        }
+      },
+      "required": ["state", "timestamp"],
+      "additionalProperties": false
+    },
+
+    "InnerMessage": {
+      "title": "Inner Message",
+      "description": "A single communication turn within a task.",
+      "type": "object",
+      "properties": {
+        "messageId": {
+          "title": "Inner Message ID",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "role": {
+          "title": "Message Role",
+          "type": "string",
+          "enum": ["user", "agent"]
+        },
+        "parts": {
+          "title": "Parts",
+          "type": "array",
+          "items": { "$ref": "part.schema.json" },
+          "minItems": 1,
+          "maxItems": 100
+        }
+      },
+      "required": ["messageId", "role", "parts"],
+      "additionalProperties": false
+    }
+  }
+}

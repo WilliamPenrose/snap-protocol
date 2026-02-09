@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snap-protocol.org/schemas/0.1/payloads/tasks-cancel.request.schema.json",
+  "title": "tasks/cancel Request Payload",
+  "description": "Payload for tasks/cancel requests. Cancels a running task.",
+
+  "type": "object",
+  "properties": {
+    "taskId": {
+      "$ref": "../common.schema.json#/$defs/TaskId"
+    }
+  },
+
+  "required": ["taskId"],
+  "additionalProperties": false
+}

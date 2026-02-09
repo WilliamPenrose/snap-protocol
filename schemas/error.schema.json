@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snap-protocol.org/schemas/0.1/error.schema.json",
+  "title": "SNAP Error",
+  "description": "Error object returned in response payloads when an operation fails.",
+
+  "type": "object",
+  "properties": {
+    "code": {
+      "title": "Error Code",
+      "description": "Numeric error code. Ranges: 1xxx (Task/Message), 2xxx (Auth), 3xxx (Discovery), 4xxx (Transport), 5xxx (System).",
+      "type": "integer",
+      "minimum": 1000,
+      "maximum": 5999
+    },
+    "message": {
+      "title": "Error Message",
+      "description": "Human-readable error description.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "data": {
+      "title": "Error Data",
+      "description": "Optional structured context about the error.",
+      "type": "object"
+    }
+  },
+
+  "required": ["code", "message"],
+  "additionalProperties": false
+}

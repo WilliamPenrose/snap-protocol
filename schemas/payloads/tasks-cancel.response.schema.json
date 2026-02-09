@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snap-protocol.org/schemas/0.1/payloads/tasks-cancel.response.schema.json",
+  "title": "tasks/cancel Response Payload",
+  "description": "Payload for tasks/cancel responses. Returns the canceled task or an error.",
+
+  "type": "object",
+  "properties": {
+    "task": {
+      "title": "Task",
+      "$ref": "../types/task.schema.json"
+    },
+    "error": {
+      "title": "Error",
+      "$ref": "../error.schema.json"
+    }
+  },
+
+  "additionalProperties": false
+}

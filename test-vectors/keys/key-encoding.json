@@ -1,0 +1,43 @@
+{
+  "description": "Key encoding test vectors for SNAP Protocol v0.1",
+  "version": "0.1",
+  "note": "P2TR addresses encode the BIP-341 tweaked output key, not the internal key.",
+  "vectors": [
+    {
+      "description": "Agent A - mainnet",
+      "privateKey": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+      "publicKeyXOnly": "f76a39d05686e34a4420897e359371836145dd3973e3982568b60f8433adde6e",
+      "tweakedPublicKey": "2b07498923bde6b9779fde46f5308dec34f464f01929af5b66be30fc3e0b3011",
+      "p2trAddress": "bc1p9vr5nzfrhhntjaulmer02vydas60ge8sry567kmxhcc0c0stxqgsgse397",
+      "nostrPubkeyHex": "f76a39d05686e34a4420897e359371836145dd3973e3982568b60f8433adde6e",
+      "network": "mainnet"
+    },
+    {
+      "description": "Agent B - mainnet",
+      "privateKey": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+      "publicKeyXOnly": "552c630b64b54bf50210c9e253d38bd4949c72e22873500f6285c2bede312a84",
+      "tweakedPublicKey": "3f2520e87f91d97f85f7d1853f2948fdbd26539e0e59ec3d5561767e1945981e",
+      "p2trAddress": "bc1p8ujjp6rlj8vhlp0h6xzn722glk7jv5u7pev7c024v9m8ux29nq0qcnnhqz",
+      "nostrPubkeyHex": "552c630b64b54bf50210c9e253d38bd4949c72e22873500f6285c2bede312a84",
+      "network": "mainnet"
+    },
+    {
+      "description": "Agent C - mainnet",
+      "privateKey": "0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c",
+      "publicKeyXOnly": "0f0fb9a244ad31a369ee02b7abfbbb0bfa3812b9a39ed93346d03d67d412d177",
+      "tweakedPublicKey": "4f78821f08f119333f981396ec5941b9f67a05c5302ecb7031861a879bbb0fbb",
+      "p2trAddress": "bc1pfaugy8cg7yvnx0uczwtwck2ph8m85pw9xqhvkup3scdg0xamp7asqh49p4",
+      "nostrPubkeyHex": "0f0fb9a244ad31a369ee02b7abfbbb0bfa3812b9a39ed93346d03d67d412d177",
+      "network": "mainnet"
+    },
+    {
+      "description": "Agent C - testnet (same key, different encoding)",
+      "privateKey": "0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c",
+      "publicKeyXOnly": "0f0fb9a244ad31a369ee02b7abfbbb0bfa3812b9a39ed93346d03d67d412d177",
+      "tweakedPublicKey": "4f78821f08f119333f981396ec5941b9f67a05c5302ecb7031861a879bbb0fbb",
+      "p2trAddress": "tb1pfaugy8cg7yvnx0uczwtwck2ph8m85pw9xqhvkup3scdg0xamp7ashlr2m6",
+      "nostrPubkeyHex": "0f0fb9a244ad31a369ee02b7abfbbb0bfa3812b9a39ed93346d03d67d412d177",
+      "network": "testnet"
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "description": "Test cases for agent-card.schema.json",
+  "schema": "../agent-card.schema.json",
+  "tests": [
+    {
+      "description": "minimal valid Agent Card",
+      "data": {
+        "name": "Code Assistant",
+        "description": "An AI agent that helps with code generation",
+        "version": "1.0.0",
+        "identity": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "skills": [
+          {
+            "id": "code-generation",
+            "name": "Code Generation",
+            "description": "Generate code from descriptions",
+            "tags": ["code"]
+          }
+        ],
+        "defaultInputModes": ["text/plain"],
+        "defaultOutputModes": ["text/plain"]
+      },
+      "valid": true
+    },
+    {
+      "description": "full Agent Card with all optional fields",
+      "data": {
+        "name": "Code Assistant",
+        "description": "An AI agent that helps with code generation and review",
+        "version": "1.0.0",
+        "identity": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "endpoints": [
+          { "protocol": "http", "url": "https://agent.example.com/snap" },
+          { "protocol": "wss", "url": "wss://agent.example.com/snap" }
+        ],
+        "nostrRelays": ["wss://relay.damus.io"],
+        "protocolVersion": "0.1",
+        "supportedVersions": ["0.1"],
+        "capabilities": {
+          "streaming": true,
+          "pushNotifications": false
+        },
+        "skills": [
+          {
+            "id": "code-generation",
+            "name": "Code Generation",
+            "description": "Generate code from natural language descriptions",
+            "tags": ["code", "typescript", "react"],
+            "examples": ["Write a login form in React"],
+            "inputModes": ["text/plain"],
+            "outputModes": ["text/plain", "application/json"]
+          }
+        ],
+        "defaultInputModes": ["text/plain", "application/json"],
+        "defaultOutputModes": ["text/plain", "application/json", "text/markdown"],
+        "trust": {
+          "domain": "agent.example.com"
+        },
+        "provider": {
+          "organization": "Example Corp",
+          "url": "https://example.com"
+        },
+        "iconUrl": "https://example.com/icon.png",
+        "documentationUrl": "https://docs.example.com/agent"
+      },
+      "valid": true
+    },
+    {
+      "description": "INVALID: missing required field (identity)",
+      "data": {
+        "name": "Code Assistant",
+        "description": "An AI agent",
+        "version": "1.0.0",
+        "skills": [
+          {
+            "id": "code-generation",
+            "name": "Code Generation",
+            "description": "Generate code",
+            "tags": ["code"]
+          }
+        ],
+        "defaultInputModes": ["text/plain"],
+        "defaultOutputModes": ["text/plain"]
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: empty skills array",
+      "data": {
+        "name": "Code Assistant",
+        "description": "An AI agent",
+        "version": "1.0.0",
+        "identity": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "skills": [],
+        "defaultInputModes": ["text/plain"],
+        "defaultOutputModes": ["text/plain"]
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: version not semver",
+      "data": {
+        "name": "Code Assistant",
+        "description": "An AI agent",
+        "version": "1.0",
+        "identity": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "skills": [
+          {
+            "id": "code-generation",
+            "name": "Code Generation",
+            "description": "Generate code",
+            "tags": ["code"]
+          }
+        ],
+        "defaultInputModes": ["text/plain"],
+        "defaultOutputModes": ["text/plain"]
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: skill id with uppercase",
+      "data": {
+        "name": "Code Assistant",
+        "description": "An AI agent",
+        "version": "1.0.0",
+        "identity": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "skills": [
+          {
+            "id": "CodeGeneration",
+            "name": "Code Generation",
+            "description": "Generate code",
+            "tags": ["code"]
+          }
+        ],
+        "defaultInputModes": ["text/plain"],
+        "defaultOutputModes": ["text/plain"]
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: endpoint with unknown protocol",
+      "data": {
+        "name": "Code Assistant",
+        "description": "An AI agent",
+        "version": "1.0.0",
+        "identity": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "endpoints": [
+          { "protocol": "grpc", "url": "https://agent.example.com/snap" }
+        ],
+        "skills": [
+          {
+            "id": "code-generation",
+            "name": "Code Generation",
+            "description": "Generate code",
+            "tags": ["code"]
+          }
+        ],
+        "defaultInputModes": ["text/plain"],
+        "defaultOutputModes": ["text/plain"]
+      },
+      "valid": false
+    },
+    {
+      "description": "INVALID: skill tag with uppercase",
+      "data": {
+        "name": "Code Assistant",
+        "description": "An AI agent",
+        "version": "1.0.0",
+        "identity": "bc1p5d7rjq7g6rdk2yhzqnt9dp8wvscrplqk0zwy63lmgreu9jzyt0mqf3xvn8",
+        "skills": [
+          {
+            "id": "code-generation",
+            "name": "Code Generation",
+            "description": "Generate code",
+            "tags": ["TypeScript"]
+          }
+        ],
+        "defaultInputModes": ["text/plain"],
+        "defaultOutputModes": ["text/plain"]
+      },
+      "valid": false
+    }
+  ]
+}

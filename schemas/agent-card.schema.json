@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snap-protocol.org/schemas/0.1/agent-card.schema.json",
+  "title": "SNAP Agent Card",
+  "description": "Describes an agent's identity, capabilities, and how to communicate with it. Published to Nostr for discovery.",
+
+  "type": "object",
+  "properties": {
+    "name": {
+      "title": "Agent Name",
+      "description": "Human-readable name.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "description": {
+      "title": "Agent Description",
+      "description": "What this agent does.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "version": {
+      "title": "Agent Version",
+      "description": "Agent implementation version (semver).",
+      "$ref": "common.schema.json#/$defs/SemVer"
+    },
+    "identity": {
+      "title": "Agent Identity",
+      "description": "P2TR address serving as the agent's unique cryptographic identifier.",
+      "$ref": "common.schema.json#/$defs/P2TRAddress"
+    },
+    "endpoints": {
+      "title": "Endpoints",
+      "description": "Transport endpoints for communicating with this agent. Callers try endpoints in declared order.",
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/AgentEndpoint" },
+      "minItems": 1,
+      "maxItems": 10
+    },
+    "nostrRelays": {
+      "title": "Nostr Relays",
+      "description": "Nostr relay servers for offline messaging and discovery.",
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/NostrRelayUrl" },
+      "minItems": 1,
+      "maxItems": 10
+    },
+    "protocolVersion": {
+      "title": "Protocol Version",
+      "description": "Preferred SNAP protocol version.",
+      "$ref": "common.schema.json#/$defs/ProtocolVersion"
+    },
+    "supportedVersions": {
+      "title": "Supported Versions",
+      "description": "All protocol versions this agent understands.",
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/ProtocolVersion" },
+      "minItems": 1,
+      "maxItems": 20
+    },
+    "capabilities": {
+      "$ref": "#/$defs/Capabilities"
+    },
+    "skills": {
+      "title": "Skills",
+      "description": "List of agent capabilities.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/Skill" },
+      "minItems": 1,
+      "maxItems": 100
+    },
+    "defaultInputModes": {
+      "title": "Default Input Modes",
+      "description": "Accepted input media types.",
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/MediaType" },
+      "minItems": 1,
+      "maxItems": 20
+    },
+    "defaultOutputModes": {
+      "title": "Default Output Modes",
+      "description": "Output media types.",
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/MediaType" },
+      "minItems": 1,
+      "maxItems": 20
+    },
+    "trust": {
+      "$ref": "#/$defs/Trust"
+    },
+    "provider": {
+      "$ref": "#/$defs/Provider"
+    },
+    "iconUrl": {
+      "title": "Icon URL",
+      "description": "URL to agent icon image.",
+      "type": "string",
+      "maxLength": 2048,
+      "format": "uri"
+    },
+    "documentationUrl": {
+      "title": "Documentation URL",
+      "description": "Link to agent documentation.",
+      "type": "string",
+      "maxLength": 2048,
+      "format": "uri"
+    }
+  },
+
+  "required": [
+    "name",
+    "description",
+    "version",
+    "identity",
+    "skills",
+    "defaultInputModes",
+    "defaultOutputModes"
+  ],
+
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": {
+      "description": "Extension fields."
+    }
+  },
+
+  "$defs": {
+    "Skill": {
+      "title": "Skill",
+      "description": "A capability that the agent provides.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/SkillId"
+        },
+        "name": {
+          "title": "Skill Name",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "description": {
+          "title": "Skill Description",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "tags": {
+          "title": "Tags",
+          "description": "Keywords for discovery.",
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/SkillTag" },
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "examples": {
+          "title": "Example Prompts",
+          "description": "Example inputs for this skill.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "maxItems": 10
+        },
+        "inputModes": {
+          "title": "Skill Input Modes",
+          "description": "Override default input modes for this skill.",
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/MediaType" },
+          "maxItems": 20
+        },
+        "outputModes": {
+          "title": "Skill Output Modes",
+          "description": "Override default output modes for this skill.",
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/MediaType" },
+          "maxItems": 20
+        }
+      },
+      "required": ["id", "name", "description", "tags"],
+      "additionalProperties": false
+    },
+
+    "Capabilities": {
+      "title": "Capabilities",
+      "description": "Optional feature flags.",
+      "type": "object",
+      "properties": {
+        "streaming": {
+          "title": "Streaming Support",
+          "description": "Supports WebSocket streaming.",
+          "type": "boolean",
+          "default": false
+        },
+        "pushNotifications": {
+          "title": "Push Notifications",
+          "description": "Can send webhook notifications.",
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "Trust": {
+      "title": "Trust",
+      "description": "Domain verification for trust anchoring.",
+      "type": "object",
+      "properties": {
+        "domain": {
+          "title": "Verified Domain",
+          "description": "Domain with _snap DNS TXT record pointing to this identity.",
+          "type": "string",
+          "maxLength": 253
+        }
+      },
+      "required": ["domain"],
+      "additionalProperties": false
+    },
+
+    "Provider": {
+      "title": "Provider",
+      "description": "Organization operating the agent.",
+      "type": "object",
+      "properties": {
+        "organization": {
+          "title": "Organization Name",
+          "type": "string",
+          "maxLength": 256
+        },
+        "url": {
+          "title": "Organization URL",
+          "type": "string",
+          "maxLength": 2048,
+          "format": "uri"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

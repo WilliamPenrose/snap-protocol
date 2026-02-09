@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snap-protocol.org/schemas/0.1/payloads/message-send.response.schema.json",
+  "title": "message/send Response Payload",
+  "description": "Payload for message/send responses. Returns a task or an error.",
+
+  "type": "object",
+  "properties": {
+    "task": {
+      "title": "Task",
+      "description": "The created or updated task.",
+      "$ref": "../types/task.schema.json"
+    },
+    "error": {
+      "title": "Error",
+      "description": "Error details if the request failed.",
+      "$ref": "../error.schema.json"
+    }
+  },
+
+  "additionalProperties": false
+}
