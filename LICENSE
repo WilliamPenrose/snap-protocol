@@ -19,16 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Note on Licensing
-=================
-
-This project uses multiple licenses:
-
-- Reference implementations (implementations/): MIT License (this file)
-- Tools and utilities (tools/): MIT License (this file)
-- Specification documents (docs/): CC BY 4.0 (see LICENSE-DOCS)
-- Test vectors (test-vectors/): CC0 1.0 (Public Domain)
-- JSON Schemas (schemas/): CC0 1.0 (Public Domain)

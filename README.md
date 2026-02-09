@@ -1,6 +1,6 @@
 # SNAP: Signed Network Agent Protocol
 
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Spec: CC BY 4.0](https://img.shields.io/badge/Spec-CC_BY_4.0-lightgrey.svg)](LICENSE-DOCS)
 
 **An open protocol for secure agent-to-agent communication using self-sovereign identity.**
 
@@ -124,7 +124,7 @@ If you know A2A concepts, you'll find SNAP familiar — but the protocols do not
 - [x] Authentication (Schnorr)
 - [x] Transport (HTTP/WS/Nostr)
 - [x] TypeScript SDK ([`implementations/typescript/`](implementations/typescript/))
-- [x] Test suite (217 tests)
+- [x] Test suite (470+ unit tests, 31 integration tests)
 
 ## Contributing
 
@@ -132,7 +132,9 @@ We'd love your input. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-This specification is released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Specification documents (`docs/`): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — see [LICENSE-DOCS](LICENSE-DOCS)
+- Reference implementations (`implementations/`): [MIT](LICENSE)
+- Test vectors and schemas: CC0 1.0 (Public Domain)
 
 ---
 
