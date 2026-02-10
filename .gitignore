@@ -1,5 +1,5 @@
-# Claude Code CLI local configuration
-.claude/
+# Claude Code CLI local configuration (keep .claude/skills/ in git for shared knowledge)
+.claude/settings.local.json
 
 # Node modules
 node_modules/

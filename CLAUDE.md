@@ -1,6 +1,6 @@
 # SNAP Protocol - Development Guide
 
-Read `skills/snap-protocol/SKILL.md` for SNAP protocol reference.
+Skills in `.claude/skills/` are auto-loaded by Claude Code for anyone working on this repo.
 
 ## Project-Specific Resources
 
@@ -27,20 +27,20 @@ Follow these three steps in order:
 
 ### Step 1: Update skills summary
 
-Sync changes to the corresponding file in `skills/snap-protocol/`:
+Sync changes to the corresponding file in `.claude/skills/snap-protocol/`:
 
 | Changed doc | Update |
 |-------------|--------|
-| `docs/errors.md` | `skills/snap-protocol/references/error-codes.md` |
-| `docs/messages.md` | `skills/snap-protocol/SKILL.md` (methods, states) |
-| `docs/agent-card.md` | `skills/snap-protocol/SKILL.md` (Agent Card section) |
-| `docs/constraints.md` | `skills/snap-protocol/references/constraints.md` |
-| `docs/authentication.md` | `skills/snap-protocol/SKILL.md` (signing section) |
-| `docs/transport.md` | `skills/snap-protocol/references/nostr-transport.md` |
+| `docs/errors.md` | `.claude/skills/snap-protocol/references/error-codes.md` |
+| `docs/messages.md` | `.claude/skills/snap-protocol/SKILL.md` (methods, states) |
+| `docs/agent-card.md` | `.claude/skills/snap-protocol/SKILL.md` (Agent Card section) |
+| `docs/constraints.md` | `.claude/skills/snap-protocol/references/constraints.md` |
+| `docs/authentication.md` | `.claude/skills/snap-protocol/SKILL.md` (signing section) |
+| `docs/transport.md` | `.claude/skills/snap-protocol/references/nostr-transport.md` |
 
 ### Step 2: Check code consistency
 
-Compare `skills/snap-protocol/` against TypeScript implementation:
+Compare `.claude/skills/snap-protocol/` against TypeScript implementation:
 
 | Skills reference | Code to check |
 |------------------|---------------|
