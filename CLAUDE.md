@@ -40,7 +40,7 @@ Sync changes to the corresponding file in `.claude/skills/snap-protocol/`:
 
 ### Step 2: Check code consistency
 
-Compare `.claude/skills/snap-protocol/` against TypeScript implementation:
+Compare `.claude/skills/snap-protocol/` (protocol layer) and `.claude/skills/snap-protocol/typescript/` (SDK layer) against TypeScript implementation:
 
 | Skills reference | Code to check |
 |------------------|---------------|
@@ -49,6 +49,8 @@ Compare `.claude/skills/snap-protocol/` against TypeScript implementation:
 | `SKILL.md` state transitions | `src/types/task.ts` |
 | `SKILL.md` Agent Card fields | `src/types/agent-card.ts` |
 | `references/constraints.md` | `src/messaging/MessageValidator.ts` |
+| `typescript/SKILL.md` code examples | `src/` classes and APIs |
+| `typescript/references/api-reference.md` | `src/` public methods |
 
 ### Step 3: Build and test
 

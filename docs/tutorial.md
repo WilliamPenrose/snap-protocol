@@ -22,22 +22,30 @@ npm init -y
 npm install @snap-protocol/core
 ```
 
-Then copy the SNAP skill into your project so your AI assistant knows the protocol:
+Then install the SNAP skill so your AI assistant knows the protocol:
 
 ```bash
-mkdir -p skills
+npx skills add WilliamPenrose/snap-protocol
 ```
 
-Download the `snap-protocol` skill folder from [github.com/WilliamPenrose/snap-protocol/skills/snap-protocol](https://github.com/WilliamPenrose/snap-protocol/tree/main/skills/snap-protocol) and place it in `skills/`.
+To enable auto-loading in Claude Code, create a symlink:
+
+```bash
+mkdir -p .claude/skills
+# Linux / macOS
+ln -s ../../.agents/skills/snap-protocol .claude/skills/snap-protocol
+# Windows
+mklink /D .claude\skills\snap-protocol .agents\skills\snap-protocol
+```
 
 Your project should look like this:
 
 ```text
 my-agent/
-├── skills/
-│   └── snap-protocol/
-│       ├── SKILL.md
-│       └── references/
+├── .claude/skills/snap-protocol/  (symlink)
+├── .agents/skills/snap-protocol/
+│   ├── SKILL.md
+│   └── references/
 ├── package.json
 └── node_modules/
 ```
