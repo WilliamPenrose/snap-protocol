@@ -82,40 +82,14 @@ SNAP authenticates at the message layer, not the HTTP layer. All SNAP errors are
 
 ## Retry Logic
 
-```javascript
-async function sendWithRetry(message, maxRetries = 3) {
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      const response = await send(message);
-
-      if (response.payload.error) {
-        const { code } = response.payload.error;
-
-        // Don't retry client errors (1xxx, 2xxx)
-        if (code >= 1000 && code < 3000) {
-          throw new Error(response.payload.error.message);
-        }
-
-        // Retry transport and system errors
-        if (code >= 4000 || code === 5001 || code === 5003) {
-          await sleep(Math.pow(2, i) * 1000);
-          continue;
-        }
-
-        // Rate limited — use retryAfter
-        if (code === 5002) {
-          const wait = response.payload.error.data?.retryAfter || 60;
-          await sleep(wait * 1000);
-          continue;
-        }
-
-        throw new Error(response.payload.error.message);
-      }
-
-      return response;
-    } catch (err) {
-      if (i === maxRetries - 1) throw err;
-    }
-  }
-}
+| Error range | Retry? | Strategy |
+|-------------|--------|----------|
+| 1xxx (Task/Message) | No | Client error, fix the request |
+| 2xxx (Authentication) | No | Client error, fix credentials/signature |
+| 3xxx (Discovery) | Maybe | Retry if relay is temporarily unreachable |
+| 4xxx (Transport) | Yes | Exponential backoff: 1s, 2s, 4s... |
+| 5001 (InternalError) | Yes | Exponential backoff |
+| 5002 (RateLimited) | Yes | Wait `retryAfter` seconds from error data (default 60s) |
+| 5003 (Unavailable) | Yes | Exponential backoff |
+| 5004, 5005 | No | Version/maintenance issue, don't retry |
 ```

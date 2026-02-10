@@ -142,14 +142,7 @@ Subscribe to your inbox using your Nostr hex pubkey. Listen on **both** event ki
 
 ## Offline Messages
 
-Only storable messages (kind `4339`) are persisted by relays. When an agent comes online, fetch stored messages received while offline:
-
-```typescript
-const messages = await nostrTransport.fetchOfflineMessages(lastOnlineTimestamp);
-for (const msg of messages) {
-  await agent.processMessage(msg);
-}
-```
+Only storable messages (kind `4339`) are persisted by relays. When an agent comes online, it should query for stored messages received while offline using the `since` timestamp of when it was last connected.
 
 ## Relay Configuration
 
@@ -161,14 +154,4 @@ Nostr transport does not support streaming (`message/stream`). Use HTTP or WebSo
 
 ## Custom WebSocket Headers
 
-Pass `headers` in `NostrTransportConfig` to set custom HTTP headers (e.g. `User-Agent`) on WebSocket connections to relays. Node.js only — browsers do not allow custom WebSocket headers.
-
-```typescript
-const transport = new NostrTransport({
-  relays: ['wss://snap.onspace.ai'],
-  privateKey: myKey,
-  headers: {
-    'User-Agent': 'snap-cli/1.0.0',
-  },
-});
-```
+Implementations may support custom HTTP headers on WebSocket connections to relays (e.g. `User-Agent`). Note: browsers do not allow custom WebSocket headers.

@@ -1,0 +1,28 @@
+# SNAP Protocol
+
+> Signed Network Agent Protocol — decentralized agent-to-agent communication with Bitcoin P2TR identity and BIP-340 Schnorr authentication.
+
+## Documentation
+
+- [Concepts](docs/concepts.md): Core protocol concepts and architecture
+- [Messages](docs/messages.md): Message format, types, and methods
+- [Authentication](docs/authentication.md): BIP-340 Schnorr signatures and identity verification
+- [Agent Card](docs/agent-card.md): Agent capability discovery and publication
+- [Transport](docs/transport.md): HTTP, WebSocket, and Nostr transport layers
+- [Constraints](docs/constraints.md): Field validation rules and size limits
+- [Errors](docs/errors.md): Error codes (1xxx-5xxx) and retry logic
+- [Discovery](docs/discovery.md): Finding agents via Nostr and HTTP well-known
+- [Security Practices](docs/security-practices.md): Security model and best practices
+- [Tutorial](docs/tutorial.md): Step-by-step guide to building SNAP agents
+- [Implementation Guide](docs/implementation-guide.md): Building an SDK from scratch
+- [Use Cases](docs/use-cases.md): Real-world application scenarios
+- [FAQ](docs/faq.md): Frequently asked questions
+- [Versioning](docs/versioning.md): Protocol version policy
+
+## SDK
+
+- [TypeScript SDK (@snap-protocol/core)](https://www.npmjs.com/package/@snap-protocol/core)
+
+## Source
+
+- [GitHub](https://github.com/WilliamPenrose/snap-protocol)

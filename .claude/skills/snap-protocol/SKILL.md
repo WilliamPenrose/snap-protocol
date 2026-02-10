@@ -1,82 +1,15 @@
 ---
 name: snap-protocol
-description: >
-  Build SNAP protocol agents, tools, and integrations using the
-  @snap-protocol/core TypeScript SDK. Use when building agent-to-agent
-  communication with self-sovereign identity (Bitcoin P2TR addresses),
-  Schnorr signature authentication, and Nostr-based discovery.
-  Covers: creating agents, sending/receiving messages, publishing
-  Agent Cards, identity management, and transport configuration
-  (HTTP, WebSocket, Nostr). Use when the user mentions SNAP protocol,
-  agent identity, P2TR addresses, or agent-to-agent messaging.
+description: "SNAP (Signed Network Agent Protocol) for decentralized agent-to-agent communication. Covers: identity (Bitcoin P2TR addresses), message format, authentication (BIP-340 Schnorr signatures), methods, task states, Agent Cards, error codes, and Nostr-based discovery. Use when the user mentions SNAP protocol, agent identity, P2TR addresses, or agent-to-agent messaging."
 ---
 
 # SNAP Protocol
 
-Build decentralized agent-to-agent communication with self-sovereign identity.
-
-## Install & Import
-
-```bash
-npm install @snap-protocol/core
-```
-
-```typescript
-import {
-  SnapAgent,
-  KeyManager,
-  NostrTransport,
-  HttpTransport,
-  WebSocketTransport,
-  MessageBuilder,
-  MessageSigner,
-  MessageValidator,
-  AgentCardBuilder,
-  SnapError,
-  ErrorCodes,
-  InMemoryReplayStore,
-  InMemoryTaskStore,
-} from '@snap-protocol/core';
-
-import type {
-  SnapMessage,
-  UnsignedMessage,
-  P2TRAddress,
-  KeyPair,
-  AgentCard,
-  Task,
-  TaskState,
-  Part,
-  MethodHandler,
-  StreamMethodHandler,
-  TransportPlugin,
-} from '@snap-protocol/core';
-```
+Decentralized agent-to-agent communication with self-sovereign identity.
 
 ## Identity
 
-Every agent is identified by a Bitcoin P2TR address derived from a private key using BIP-341 taproot tweak.
-
-```typescript
-import { randomBytes } from 'crypto';
-import { KeyManager } from '@snap-protocol/core';
-
-// Generate new identity
-const privateKey = randomBytes(32).toString('hex');
-const keyPair = KeyManager.deriveKeyPair(privateKey);
-
-console.log(keyPair.address);   // "bc1p..." (62 chars) - agent identity (encodes tweaked output key)
-console.log(keyPair.publicKey); // 64-char hex - internal x-only public key (used by Nostr)
-
-// Convert between formats
-const tweakedKey = KeyManager.p2trToPublicKey('bc1p...');  // Returns tweaked output key, NOT internal key
-const address = KeyManager.publicKeyToP2TR(internalKey);   // Applies taproot tweak, then encodes
-const isValid = KeyManager.validateP2TR('bc1p...');
-
-// Taproot tweak functions
-const tweakedPubkey = KeyManager.taprootTweak(internalKeyBytes);  // Q = P + t*G
-const tweakedPrivkey = KeyManager.tweakPrivateKey(privateKey);     // For signing
-```
+Every agent is identified by a Bitcoin P2TR (Pay-to-Taproot) address derived from a private key using BIP-341 taproot tweak.
 
 P2TR address rules:
 - Exactly 62 characters
@@ -84,130 +17,78 @@ P2TR address rules:
 - Bech32m encoded, witness version 1
 - Encodes the BIP-341 tweaked output key (not the internal key)
 
-## Create an Agent
-
-```typescript
-import { SnapAgent, NostrTransport, KeyManager } from '@snap-protocol/core';
-import { randomBytes } from 'crypto';
-
-const privateKey = randomBytes(32).toString('hex');
-const keyPair = KeyManager.deriveKeyPair(privateKey);
-
-const agent = new SnapAgent({
-  keyPair,
-  transports: [
-    new NostrTransport({
-      relays: ['wss://snap.onspace.ai'],
-      privateKey,
-    }),
-  ],
-});
-
-// Handle incoming messages
-agent.handle('message/send', async (payload, ctx) => {
-  const userText = payload.message.parts[0].text;
-  return {
-    message: {
-      role: 'assistant',
-      parts: [{ text: `You said: ${userText}` }],
-    },
-  };
-});
-
-// Start listening
-await agent.listen();
-console.log(`Agent running at ${keyPair.address}`);
+Key derivation flow:
+```
+Private Key (32 bytes)
+    ├─→ Internal Key (P)  → hex pubkey (used by Nostr)
+    └─→ Internal Key (P)  → Taproot Tweak → Output Key (Q) → Bech32m → P2TR address
 ```
 
-### Transport Options
+Important: `publicKeyToP2TR()` and `p2trToPublicKey()` are NOT inverses. The taproot tweak is irreversible — you cannot recover the Nostr pubkey from a P2TR address.
 
-```typescript
-// HTTP transport
-new HttpTransport({ port: 3000, host: '0.0.0.0' })
+## Message Format
 
-// WebSocket transport
-new WebSocketTransport({ port: 8080 })
+Every SNAP message is a JSON object with these fields:
 
-// Nostr transport (default relay)
-new NostrTransport({
-  relays: ['wss://snap.onspace.ai'],
-  privateKey,
-})
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique message ID (1-128 chars, `[a-zA-Z0-9_-]`) |
+| `version` | string | Protocol version, must be `"0.1"` |
+| `from` | string | Sender P2TR address |
+| `to` | string | Recipient P2TR address |
+| `type` | string | `request`, `response`, or `event` |
+| `method` | string | Method name (e.g. `message/send`) |
+| `payload` | object | Method-specific data (max 1 MB, max depth 10) |
+| `timestamp` | integer | Unix seconds (UTC), must be within ±60s of current time |
+| `sig` | string | 128 hex chars (64-byte BIP-340 Schnorr signature, signs with tweaked key) |
+
+## Authentication
+
+Messages are signed using BIP-340 Schnorr signatures with the taproot-tweaked private key. The signature covers a canonical JSON serialization of all message fields (excluding `sig`).
+
+Verification steps:
+1. Extract tweaked output key Q from the `from` P2TR address
+2. Reconstruct canonical signing payload from message fields
+3. Verify BIP-340 Schnorr signature against Q
+
+## Methods
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `message/send` | request-response | Single message exchange |
+| `message/stream` | streaming | Streaming response (chunks) |
+| `tasks/send` | request-response | Create a new task |
+| `tasks/get` | request-response | Get task status |
+| `tasks/cancel` | request-response | Cancel a running task |
+| `tasks/resubscribe` | streaming | Resume a task stream |
+| `agent/card` | request-response | Get agent's capability card |
+| `agent/ping` | request-response | Health check |
+
+## Task States
+
+```
+submitted → working → completed
+                   → failed
+                   → canceled
+         → input_required → working (after user responds)
 ```
 
-Multiple transports can be combined. Nostr is the default for discovery and fallback messaging.
-
-## Send Messages
-
-```typescript
-// Request-response
-const response = await agent.send(
-  'bc1p_target_address...',
-  { relay: 'wss://snap.onspace.ai' },
-  'message/send',
-  {
-    message: {
-      role: 'user',
-      parts: [{ text: 'Hello!' }],
-    },
-  }
-);
-console.log(response.payload);
-
-// Streaming
-for await (const event of agent.sendStream(
-  'bc1p_target...',
-  { relay: 'wss://snap.onspace.ai' },
-  'message/stream',
-  { message: { role: 'user', parts: [{ text: 'Tell me a story' }] } }
-)) {
-  console.log(event.payload);
-}
-```
-
-### Manual Message Construction
-
-```typescript
-const unsigned = new MessageBuilder()
-  .from(keyPair.address)
-  .to('bc1p_target...')
-  .method('message/send')
-  .payload({ message: { role: 'user', parts: [{ text: 'Hi' }] } })
-  .build();
-
-const signed = MessageSigner.sign(unsigned, keyPair.privateKey);
-const isValid = MessageSigner.verify(signed);
-```
+| State | Description |
+|-------|-------------|
+| `submitted` | Queued, not yet started |
+| `working` | Currently processing |
+| `input_required` | Waiting for user input |
+| `completed` | Finished successfully |
+| `failed` | Finished with error |
+| `canceled` | Canceled by user |
 
 ## Agent Card
 
-Publish agent capabilities for discovery on Nostr.
+An Agent Card describes an agent's identity, capabilities, endpoints, and skills. Published as a Nostr replaceable event (kind 31337) for discovery.
 
-```typescript
-import { AgentCardBuilder, NostrTransport } from '@snap-protocol/core';
+Required fields: `name`, `description`, `version`, `identity` (P2TR), `skills`, `defaultInputModes`, `defaultOutputModes`.
 
-const card = new AgentCardBuilder()
-  .name('My Agent')
-  .description('An example SNAP agent')
-  .identity(keyPair.address)
-  .skill('echo', 'Echo', 'Echoes back your message')
-  .nostrRelay('wss://snap.onspace.ai')
-  .build();
-
-const nostr = new NostrTransport({
-  relays: ['wss://snap.onspace.ai'],
-  privateKey,
-});
-
-// Publish card
-await nostr.publishAgentCard(card);
-
-// Discover agents via Nostr
-const agents = await nostr.discoverAgents({ skills: ['echo'] });
-
-// Discover an agent via HTTP well-known URL
-const card = await HttpTransport.discoverViaHttp('https://agent.example.com');
-```
+Optional fields: `endpoints` (HTTP/WS URLs), `nostrRelays`, `protocolVersion`, `capabilities` (streaming, push), `provider`, `trust`, `iconUrl`.
 
 ## Critical Constraints
 
@@ -216,88 +97,43 @@ const card = await HttpTransport.discoverViaHttp('https://agent.example.com');
 | P2TR address | Exactly 62 chars, prefix `bc1p` or `tb1p` |
 | Message ID | 1-128 chars, `[a-zA-Z0-9_-]` only |
 | Timestamp | Unix seconds, ±60s from current time |
-| Signature | 128 lowercase hex chars (64-byte Schnorr, BIP-340, signs with tweaked key) |
+| Signature | 128 lowercase hex chars (64-byte Schnorr, BIP-340) |
 | Version | Must be `"0.1"` |
 | Payload | Max 1 MB serialized, max depth 10 |
+| Network | `from` and `to` must be same network (both mainnet or both testnet) |
 
 For complete field constraints, see [references/constraints.md](references/constraints.md).
 
-## Error Handling
+## Error Codes
 
-| Code | Name | When |
-|------|------|------|
-| 1003 | InvalidMessageError | Message format invalid |
-| 1007 | MethodNotFoundError | Unknown method |
-| 2001 | SignatureInvalidError | Schnorr verification failed |
-| 2004 | TimestampExpiredError | Outside ±60s window |
-| 2006 | DuplicateMessageError | Replay detected |
-| 5002 | RateLimitExceededError | Too many requests |
+| Range | Category |
+|-------|----------|
+| 1xxx | Task/Message errors (invalid format, unknown method) |
+| 2xxx | Authentication errors (bad signature, expired timestamp, replay) |
+| 3xxx | Discovery errors (agent not found, invalid card) |
+| 4xxx | Transport errors (timeout, connection refused) |
+| 5xxx | System errors (rate limit, maintenance) |
 
-For complete error codes (1xxx-5xxx) and retry logic, see [references/error-codes.md](references/error-codes.md).
+Errors are returned in the message payload, not as HTTP status codes. All SNAP responses use HTTP 200.
 
-## Message & Method Types
-
-```typescript
-type MessageType = 'request' | 'response' | 'event';
-
-type MethodName =
-  | 'message/send'      // Single message exchange
-  | 'message/stream'    // Streaming response
-  | 'tasks/send'        // Create task
-  | 'tasks/get'         // Get task status
-  | 'tasks/cancel'      // Cancel task
-  | 'tasks/resubscribe' // Resume task stream
-  | 'agent/card'        // Get agent card
-  | 'agent/ping';       // Health check
-
-type TaskState =
-  | 'submitted'       // Queued
-  | 'working'         // Processing
-  | 'input_required'  // Needs user input
-  | 'completed'       // Done
-  | 'failed'          // Error
-  | 'canceled';       // User canceled
-```
+For complete error code listing, see [references/error-codes.md](references/error-codes.md).
 
 ## Nostr Integration
 
 Default relay: `wss://snap.onspace.ai`
 
-| Kind | Purpose |
-|------|---------|
-| 31337 | Agent Card (replaceable event, NIP-33) |
-| 21339 | Ephemeral encrypted SNAP message (NIP-16, default for real-time) |
-| 4339 | Storable encrypted SNAP message (NIP-44, for offline/persist) |
+| Kind | Type | Purpose |
+|------|------|---------|
+| 31337 | Replaceable (NIP-33) | Agent Card publication |
+| 21339 | Ephemeral (NIP-16) | Real-time encrypted SNAP message (default) |
+| 4339 | Regular (storable) | Persistent/offline SNAP message |
 
-Messages are encrypted end-to-end using NIP-44. The relay only sees ciphertext. By default, `send()` uses ephemeral kind 21339 (not stored by relays). Set `persist: true` to use storable kind 4339 for offline retrieval.
+Messages are encrypted end-to-end using NIP-44. The relay only sees ciphertext. By default, real-time messages use ephemeral kind 21339 (not stored). Set `persist: true` for storable kind 4339 (offline retrieval).
 
 For Nostr event structure and offline messaging, see [references/nostr-transport.md](references/nostr-transport.md).
 
-## Testing
+## SDK Implementations
 
-```typescript
-import { describe, it, expect } from 'vitest';
-import { KeyManager, MessageBuilder, MessageSigner } from '@snap-protocol/core';
-
-describe('SNAP message', () => {
-  it('should sign and verify', () => {
-    const keyPair = KeyManager.deriveKeyPair('aa'.repeat(32));
-
-    const unsigned = new MessageBuilder()
-      .from(keyPair.address)
-      .to('bc1p' + '0'.repeat(58))
-      .method('message/send')
-      .payload({ message: { parts: [{ text: 'test' }] } })
-      .build();
-
-    const signed = MessageSigner.sign(unsigned, keyPair.privateKey);
-
-    expect(signed.sig).toHaveLength(128);
-    expect(MessageSigner.verify(signed)).toBe(true);
-  });
-});
-```
-
-## API Reference
-
-For complete class methods, type definitions, and config interfaces, see [references/api-reference.md](references/api-reference.md).
+| Language | Skill |
+|----------|-------|
+| TypeScript | [typescript/SKILL.md](typescript/SKILL.md) |

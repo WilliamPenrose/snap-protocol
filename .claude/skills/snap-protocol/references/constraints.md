@@ -20,20 +20,11 @@
 - Length: exactly 62 characters
 - Encoding: bech32m, witness version 1
 
-```javascript
-import { bech32m } from 'bech32';
-
-function validateP2TR(address) {
-  if (!address.startsWith('bc1p') && !address.startsWith('tb1p')) return false;
-  if (address.length !== 62) return false;
-  try {
-    const { words } = bech32m.decode(address);
-    return words[0] === 1;
-  } catch {
-    return false;
-  }
-}
-```
+Validation algorithm:
+1. Check prefix is `bc1p` (mainnet) or `tb1p` (testnet)
+2. Check length is exactly 62 characters
+3. Decode as bech32m
+4. Verify witness version is 1
 
 ### Network Policy
 
