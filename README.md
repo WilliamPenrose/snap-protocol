@@ -88,9 +88,26 @@ That's it. No API keys. No OAuth. No central registry.
 
 **For AI-assisted development:**
 
-| Resource                | Description                                              |
-|-------------------------|----------------------------------------------------------|
-| [Agent Skills](skills/) | Skills for AI coding agents (Claude Code, Cursor, etc.)  |
+| Resource                                        | Description                                                     |
+|-------------------------------------------------|-----------------------------------------------------------------|
+| [Agent Skills](.claude/skills/snap-protocol/)   | Skills for AI coding agents (Claude Code, Cursor, Codex, etc.)  |
+| [llms.txt](llms.txt)                            | Documentation index for MCP tools (Context7, mcpdoc)            |
+
+### Install SNAP Skills into Your Project
+
+```bash
+npx skills add WilliamPenrose/snap-protocol
+```
+
+This installs to `.agents/skills/`. To enable auto-loading in Claude Code, create a symlink:
+
+```bash
+mkdir -p .claude/skills
+# Linux / macOS
+ln -s ../../.agents/skills/snap-protocol .claude/skills/snap-protocol
+# Windows
+mklink /D .claude\skills\snap-protocol .agents\skills\snap-protocol
+```
 
 ## Relationship to A2A
 
