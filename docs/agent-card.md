@@ -282,7 +282,7 @@ SNAP does not define a trust/reputation system in v0.1.
 | Sender controls the identity | Agent will behave correctly |
 | Domain ownership (optional) | Agent quality or safety |
 
-### Client Responsibilities
+### Requester Responsibilities
 
 Clients SHOULD implement their own trust policies:
 

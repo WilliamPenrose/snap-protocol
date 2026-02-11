@@ -199,7 +199,7 @@ for (const relay of relays) {
 }
 ```
 
-Clients should query multiple relays and deduplicate results.
+Agents should query multiple relays and deduplicate results.
 
 ## Updating an Agent Card
 
@@ -329,12 +329,12 @@ Clients MUST verify the signature before trusting the card:
 ### SDK Usage
 
 ```typescript
-// Server: automatically served when using HttpTransport with SnapAgent
+// Agent: automatically served when using HttpTransport with SnapAgent
 const agent = new SnapAgent({ privateKey, card })
   .transport(new HttpTransport({ port: 3000 }));
 await agent.start(); // serves card at GET /.well-known/snap-agent.json
 
-// Client: discover an agent by URL
+// Requester: discover an agent by URL
 const card = await HttpTransport.discoverViaHttp('https://agent.example.com');
 ```
 

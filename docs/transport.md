@@ -73,7 +73,7 @@ SNAP-Version: 0.1
 
 ### HTTP SSE Streaming
 
-For streaming methods (`message/stream`, `tasks/resubscribe`), the caller sends a POST with `Accept: text/event-stream`. The server responds with an SSE event stream:
+For streaming methods (`message/stream`, `tasks/resubscribe`), the caller sends a POST with `Accept: text/event-stream`. The responder replies with an SSE event stream:
 
 ```http
 POST /snap HTTP/1.1
@@ -100,7 +100,7 @@ data: {"id":"resp-001","version":"0.1","from":"bc1p...agent","to":"bc1p...sender
 
 Each SSE event is a `data:` line containing a complete JSON-encoded SnapMessage, followed by a blank line. The stream ends after the final `type: "response"` message.
 
-If the server does not support SSE, it MAY fall back to a standard JSON response.
+If the responder does not support SSE, it MAY fall back to a standard JSON response.
 
 ### HTTP Headers
 
@@ -219,7 +219,7 @@ The stream ends with a final `type: "response"` message:
 
 ### Stream Recovery (tasks/resubscribe)
 
-When a streaming connection is interrupted (WebSocket disconnect, SSE timeout), clients can resume using `tasks/resubscribe`:
+When a streaming connection is interrupted (WebSocket disconnect, SSE timeout), the requester can resume using `tasks/resubscribe`:
 
 ```json
 {
@@ -232,13 +232,13 @@ When a streaming connection is interrupted (WebSocket disconnect, SSE timeout), 
 
 **Resume behavior:**
 
-1. Client calls `tasks/get` to check if the task is still in a non-terminal state.
-2. If `state` is `working` or `input_required`, client sends `tasks/resubscribe`.
-3. Agent SHOULD resume from the point of interruption, not replay from the beginning.
-4. If the agent cannot determine the resume point, it MAY replay all events for the current task state.
-5. The agent sends events followed by a final `type: "response"` message, identical to `message/stream`.
+1. Requester calls `tasks/get` to check if the task is still in a non-terminal state.
+2. If `state` is `working` or `input_required`, requester sends `tasks/resubscribe`.
+3. Responder SHOULD resume from the point of interruption, not replay from the beginning.
+4. If the responder cannot determine the resume point, it MAY replay all events for the current task state.
+5. The responder sends events followed by a final `type: "response"` message, identical to `message/stream`.
 
-Agents are not required to buffer past events. If events were lost during disconnection and the agent has no replay buffer, the client relies on the final response (which contains the complete task with artifacts).
+Responders are not required to buffer past events. If events were lost during disconnection and the responder has no replay buffer, the requester relies on the final response (which contains the complete task with artifacts).
 
 ### Heartbeat
 
@@ -246,7 +246,7 @@ WebSocket connections use **protocol-level ping/pong frames** (not JSON messages
 
 ### Request-Response over WebSocket
 
-Non-streaming methods (`message/send`, `tasks/get`, `tasks/cancel`) can also be sent over WebSocket. The server sends a single `type: "response"` message in reply. The method name determines whether the server routes to a streaming or request-response handler:
+Non-streaming methods (`message/send`, `tasks/get`, `tasks/cancel`) can also be sent over WebSocket. The responder sends a single `type: "response"` message in reply. The method name determines whether the responder routes to a streaming or request-response handler:
 
 - `message/stream`, `tasks/resubscribe` → streaming handler (multiple events + final response)
 - `message/send`, `tasks/get`, `tasks/cancel` → request-response handler (single response)

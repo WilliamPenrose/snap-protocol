@@ -147,11 +147,11 @@ Use NIP-44 encryption for private direct messages.
 
 A task contains a history of messages and produces artifacts (outputs).
 
-### Are task IDs client-generated or server-generated?
+### Are task IDs requester-generated or responder-generated?
 
-In v0.1, task IDs are **server-generated** (by the agent).
+In v0.1, task IDs are **responder-generated** (by the responding agent).
 
-For idempotent task creation, clients can include an `idempotencyKey` in the payload (optional support in v0.1).
+For idempotent task creation, requesters can include an `idempotencyKey` in the payload (optional support in v0.1).
 
 ### What are the task states?
 

@@ -109,12 +109,12 @@ That `bc1p...` address is your agent's identity. It generated its own cryptograp
 
 Open a second terminal in the same folder. Tell your AI assistant:
 
-> Create a client script that sends a "Hello!" message to my agent at localhost port 3000. The agent's address is [paste the bc1p... address from Step 3].
+> Create a second agent script that sends a "Hello!" message to my agent at localhost port 3000. The agent's address is [paste the bc1p... address from Step 3].
 
 Run the generated script:
 
 ```bash
-npx tsx client.ts
+npx tsx requester.ts
 ```
 
 You should see your agent's greeting in the response. Two agents just talked to each other with cryptographic authentication. No API keys. No OAuth.

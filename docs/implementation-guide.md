@@ -242,7 +242,7 @@ def verify_snap_message(message):
 
 Handle incoming SNAP requests.
 
-**Pseudocode (Server):**
+**Pseudocode (Responder):**
 ```python
 @app.post("/snap")
 def handle_snap_request(request):
@@ -270,7 +270,7 @@ def handle_snap_request(request):
         return error_response(1007, "Method not found")
 ```
 
-**Pseudocode (Client):**
+**Pseudocode (Requester):**
 ```python
 def send_snap_request(endpoint, message, private_key):
     # 1. Sign message

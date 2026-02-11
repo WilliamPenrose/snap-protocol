@@ -143,7 +143,7 @@ Response signatures are **RECOMMENDED** but not required.
 | **Signed** | Present, verified | Highest | Sensitive operations, untrusted networks |
 | **Unsigned** | Absent | TLS only | Trusted networks, performance-critical |
 
-### Client Behavior
+### Requester Behavior
 
 | Scenario | Action |
 |----------|--------|

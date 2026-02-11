@@ -2,6 +2,16 @@
 
 This page covers the fundamental concepts you need to understand SNAP.
 
+## Terminology
+
+| Term | Definition |
+|------|------------|
+| **Agent** | A self-sovereign entity with a P2TR identity that can send and receive messages. |
+| **Requester** | The agent that initiates a request in a given interaction. |
+| **Responder** | The agent that receives a request and returns a response. |
+
+**Requester** and **responder** are _roles_, not identity types. The same agent can be a requester in one interaction and a responder in another. In SNAP, all participants are agents — there is no inherent client/server distinction.
+
 ## The Big Picture
 
 SNAP enables agents to communicate directly, without relying on a central platform:
@@ -24,6 +34,14 @@ SNAP enables agents to communicate directly, without relying on a central platfo
 │                                                                  │
 └──────────────────────────────────────────────────────────────────┘
 ```
+
+## Design Principles
+
+SNAP separates **what** is communicated from **how** it is delivered.
+
+**Self-authenticating messages.** Every SNAP message carries its own proof of origin (BIP-340 signature) and freshness (timestamp). The transport layer is just a delivery pipe — it does not need to provide authentication, integrity, or ordering. A valid SNAP message can travel over HTTP, Nostr, email, QR code, or even printed paper. The receiver only needs to verify the signature.
+
+**Transport-independent discovery.** An Agent Card is a signed description of an agent's identity and capabilities. It can be published through any medium — Nostr relays, HTTP well-known endpoints, P2P networks, DNS records, or blockchain. Adding a new discovery channel requires only a new transport plugin, not a protocol change.
 
 ## Identity
 

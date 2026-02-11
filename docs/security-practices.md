@@ -181,7 +181,7 @@ def handle_sensitive_request(request):
 ```
 ✓ Use WSS (WebSocket Secure), not WS
 ✓ Verify origin headers
-✓ Implement connection limits per client
+✓ Implement connection limits per agent
 ✓ Set reasonable timeout values
 ✓ Implement heartbeat/ping-pong
 ✗ Allow connections without authentication
