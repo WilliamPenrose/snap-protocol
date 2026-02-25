@@ -213,9 +213,9 @@ interface SnapMessage {
   id: string
   version: string
   from: string           // P2TR address
-  to: string             // P2TR address
+  to?: string            // P2TR address (optional — omit for Agent-to-Service)
   type: 'request' | 'response' | 'event'
-  method: string
+  method: string         // Standard or custom (e.g. 'service/call', 'myapp/action')
   payload: Record<string, unknown>
   timestamp: number      // Unix seconds
   sig: string            // 128 hex chars

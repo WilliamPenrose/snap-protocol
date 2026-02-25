@@ -157,7 +157,7 @@ def sign_snap_message(message, private_key):
     parts = [
         message["id"],
         message["from"],
-        message["to"],
+        message.get("to", ""),  # Empty string if absent (Agent-to-Service)
         message["type"],
         message["method"],
         canonicalize_jcs(message["payload"]),  # RFC 8785
@@ -174,7 +174,7 @@ def sign_snap_message(message, private_key):
 
     return signature.hex()  # 128 hex chars
 
-# Usage
+# Usage — Agent-to-Agent (with `to`)
 message = {
     "id": "msg-001",
     "version": "0.1",
@@ -183,6 +183,17 @@ message = {
     "type": "request",
     "method": "message/send",
     "payload": {"message": {...}},
+    "timestamp": current_timestamp()
+}
+
+# Usage — Agent-to-Service (without `to`)
+message = {
+    "id": "svc-001",
+    "version": "0.1",
+    "from": my_identity,
+    "type": "request",
+    "method": "service/call",
+    "payload": {"name": "query_database", "arguments": {"sql": "SELECT 1"}},
     "timestamp": current_timestamp()
 }
 
@@ -216,7 +227,7 @@ def verify_snap_message(message):
     parts = [
         message["id"],
         message["from"],
-        message["to"],
+        message.get("to", ""),  # Empty string if absent (Agent-to-Service)
         message["type"],
         message["method"],
         canonicalize_jcs(message["payload"]),
@@ -332,12 +343,13 @@ def discover_agents_by_skill(skill_id):
 Implement these validations:
 
 ### Message Validation
-- [ ] Required fields present (`id`, `version`, `from`, `to`, `type`, `method`, `payload`, `timestamp`, `sig`)
+- [ ] Required fields present (`id`, `version`, `from`, `type`, `method`, `payload`, `timestamp`, `sig`)
 - [ ] `id` matches pattern `^[a-zA-Z0-9_-]+$`, length 1-128
 - [ ] `version` matches pattern `^\d+\.\d+$`
-- [ ] `from` and `to` are valid P2TR addresses (62 chars, checksum)
+- [ ] `from` is a valid P2TR address (62 chars, checksum)
+- [ ] `to`, if present, is a valid P2TR address (62 chars, checksum)
 - [ ] `type` is `request`, `response`, or `event`
-- [ ] `method` matches pattern `^[a-z]+/[a-z_]+$`
+- [ ] `method` matches pattern `^[a-z]+/[a-z_]+$` (standard methods: `message/send`, `message/stream`, `tasks/get`, `tasks/cancel`, `tasks/resubscribe`, `service/call`; custom methods also allowed)
 - [ ] `timestamp` is integer, within ±60 seconds
 - [ ] `sig` is 128 hex characters
 - [ ] `payload` is valid JSON object, max 1 MB

@@ -34,10 +34,9 @@ describe('MessageBuilder', () => {
 
   // --- Detailed required field validation ---
 
-  it('throws when to is missing', () => {
-    expect(() =>
-      new MessageBuilder().id('x').from(VALID_ADDR_A).build(),
-    ).toThrow('to is required');
+  it('builds without to (Agent-to-Service)', () => {
+    const msg = new MessageBuilder().id('x').from(VALID_ADDR_A).method('service/call').timestamp(1000).build();
+    expect(msg.to).toBeUndefined();
   });
 
   it('throws when method is missing', () => {

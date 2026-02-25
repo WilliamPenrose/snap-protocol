@@ -101,6 +101,10 @@ export class NostrTransport implements TransportPlugin {
    * (populated by discoverAgents()).
    */
   async send(message: SnapMessage, options: TransportSendOptions): Promise<SnapMessage> {
+    if (!message.to) {
+      throw new Error('Nostr transport requires a `to` address. Agent-to-Service messages should use HTTP transport.');
+    }
+
     const recipientPubkey = options.nostrPubkey
       ?? this.internalKeyCache.get(message.to);
 

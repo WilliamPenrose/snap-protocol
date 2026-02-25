@@ -121,6 +121,7 @@ To find agents with a specific skill:
 
 Every SNAP message is **signed** using Schnorr signatures:
 
+**Agent-to-Agent** (with `to`):
 ```json
 {
   "id": "msg-001",
@@ -140,7 +141,25 @@ Every SNAP message is **signed** using Schnorr signatures:
 }
 ```
 
-The signature covers: `id, from, to, type, method, payload, timestamp` using [canonical serialization](authentication.md#signature-computation).
+**Agent-to-Service** (without `to`):
+```json
+{
+  "id": "svc-001",
+  "from": "bc1p...sender",
+  "type": "request",
+  "method": "service/call",
+  "payload": {
+    "name": "query_database",
+    "arguments": { "sql": "SELECT 1" }
+  },
+  "timestamp": 1770163200,
+  "sig": "a1b2c3d4e5f6..."
+}
+```
+
+The `to` field is **optional**. When absent (Agent-to-Service), an empty string is used in its position for signature computation.
+
+The signature covers: `id, from, to (or ""), type, method, payload, timestamp` using [canonical serialization](authentication.md#signature-computation).
 
 This provides:
 

@@ -116,8 +116,8 @@ export class SnapAgent {
     // 1. Validate structure and signature
     MessageValidator.validate(inbound);
 
-    // 2. Check destination
-    if (inbound.to !== this.address) {
+    // 2. Check destination (skip when `to` is absent — Agent-to-Service)
+    if (inbound.to !== undefined && inbound.to !== this.address) {
       throw SnapError.invalidMessage(`Message not addressed to this agent: ${inbound.to}`);
     }
 
@@ -166,8 +166,8 @@ export class SnapAgent {
     // 1. Validate
     MessageValidator.validate(inbound);
 
-    // 2. Check destination
-    if (inbound.to !== this.address) {
+    // 2. Check destination (skip when `to` is absent — Agent-to-Service)
+    if (inbound.to !== undefined && inbound.to !== this.address) {
       throw SnapError.invalidMessage(`Message not addressed to this agent: ${inbound.to}`);
     }
 

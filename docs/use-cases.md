@@ -257,6 +257,66 @@ OpenClaw uses its own SNAP identity to talk to other agents. No API keys collect
 
 ---
 
+## Part 3: Agent-to-Service Authentication
+
+Not every interaction is between two agents. Sometimes an agent needs to **authenticate to a plain HTTP service** — an API server, an MCP endpoint, a database gateway. The service doesn't have its own P2TR identity; it just needs to know *who* is calling.
+
+### The Problem
+
+Traditional API authentication requires shared secrets:
+
+```text
+Agent → HTTP Service
+  Authorization: Bearer sk-abc123...
+```
+
+The service issued `sk-abc123` to the agent. If the agent is compromised, that key must be rotated at the service. If the agent talks to 50 services, 50 keys must be rotated.
+
+### SNAP's Solution: Signed Requests Without `to`
+
+With SNAP, the agent sends a self-authenticating message. The `to` field is omitted — the service doesn't have a P2TR address:
+
+```json
+{
+  "id": "svc-001",
+  "version": "0.1",
+  "from": "bc1p...agent",
+  "type": "request",
+  "method": "service/call",
+  "payload": {
+    "name": "query_database",
+    "arguments": { "sql": "SELECT * FROM users LIMIT 10" }
+  },
+  "timestamp": 1770163200,
+  "sig": "a1b2c3d4..."
+}
+```
+
+The service validates the signature (proving the sender controls the private key behind `bc1p...agent`) and checks an allowlist:
+
+```python
+# Server-side — no private key, no SnapAgent needed
+message = parse_json(request.body)
+validate_signature(message)            # Schnorr verification
+if message["from"] not in allowlist:
+    return 403, "Unauthorized"
+# Process the request...
+```
+
+### Why This Matters
+
+| Aspect | API Key | SNAP Agent-to-Service |
+| ------ | ------- | --------------------- |
+| Credential type | Shared secret | Self-sovereign signature |
+| Issued by | The service | The agent itself |
+| Compromise impact | Rotate at each service | Revoke one identity |
+| Service-side storage | Must store/hash each key | Just an allowlist of addresses |
+| Registration required | Yes | No |
+
+This is the same identity the agent uses for agent-to-agent communication. One key pair, every interaction.
+
+---
+
 ## Next Steps
 
 - **Technical details:** [Transport](transport.md), [Authentication](authentication.md), [Discovery](discovery.md)

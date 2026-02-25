@@ -24,7 +24,7 @@ export class Signer {
     const parts = [
       message.id,
       message.from,
-      message.to,
+      message.to ?? '',
       message.type,
       message.method,
       Canonicalizer.canonicalize(message.payload),

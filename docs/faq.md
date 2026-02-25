@@ -178,6 +178,24 @@ No. Agent Cards published to Nostr are **public**. Anyone can see:
 
 Use NIP-44 encryption for private direct messages.
 
+### Is the `to` field required?
+
+**No.** The `to` field is optional. When present, it must be a valid P2TR address and the recipient should verify it matches their own identity.
+
+When `to` is absent, the message is an **Agent-to-Service** communication — the agent is authenticating to a plain HTTP service that doesn't have its own P2TR address. In signature computation, an empty string is used in the `to` position.
+
+See [messages.md](messages.md#servicecall) for the `service/call` method and [authentication.md](authentication.md#signature-computation) for how signing works with an absent `to`.
+
+### What is `service/call`?
+
+`service/call` is a standard SNAP method for Agent-to-Service communication. It allows an agent to call capabilities on an HTTP service using its P2TR identity for authentication, instead of API keys or OAuth tokens.
+
+The service doesn't need to be a SNAP agent — it only needs to validate the Schnorr signature and check an allowlist of authorized P2TR addresses.
+
+### Can I define custom methods beyond the standard ones?
+
+Yes. The `method` field accepts any string matching `^[a-z]+/[a-z_]+$`. Standard methods (`message/send`, `tasks/get`, etc.) are defined by the protocol, but you can use custom methods like `myapp/do_thing` for application-specific purposes.
+
 ## Messages & Tasks
 
 ### What is the difference between a Message and a Task?

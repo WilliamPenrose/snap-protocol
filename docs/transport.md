@@ -51,6 +51,8 @@ SNAP-Version: 0.1
 }
 ```
 
+**Note:** The `to` field is optional. For Agent-to-Service requests (e.g., `service/call`), omit `to` — the service verifies the sender's identity from `from` and does not need its own P2TR address.
+
 ### Response
 
 ```http
@@ -120,6 +122,8 @@ If the responder does not support SSE, it MAY fall back to a standard JSON respo
 | 500    | Server error                                                   |
 
 **Note:** SNAP authenticates at the message layer (Schnorr signatures), not the HTTP layer. Authentication failures (invalid signature, expired timestamp) return HTTP 200 with an error in the payload. There is no HTTP 401 or 403.
+
+**Exception — Agent-to-Service:** When an HTTP service uses SNAP messages purely for authentication (e.g., `service/call`), the service MAY use standard HTTP status codes (401, 403) since it is not a full SNAP agent. See [messages.md](messages.md#servicecall) for details.
 
 ## WebSocket Transport
 

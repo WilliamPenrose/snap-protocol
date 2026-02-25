@@ -37,7 +37,7 @@ export class MessageValidator {
     if (typeof msg.id !== 'string' || !MESSAGE_ID_PATTERN.test(msg.id)) return false;
     if (typeof msg.version !== 'string') return false;
     if (typeof msg.from !== 'string' || !P2TR_PATTERN.test(msg.from)) return false;
-    if (typeof msg.to !== 'string' || !P2TR_PATTERN.test(msg.to)) return false;
+    if (msg.to !== undefined && (typeof msg.to !== 'string' || !P2TR_PATTERN.test(msg.to))) return false;
     if (typeof msg.type !== 'string' || !VALID_TYPES.has(msg.type)) return false;
     if (typeof msg.method !== 'string' || !METHOD_PATTERN.test(msg.method)) return false;
     if (typeof msg.payload !== 'object' || msg.payload === null) return false;

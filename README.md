@@ -141,7 +141,8 @@ If you know A2A concepts, you'll find SNAP familiar — but the protocols do not
 - [x] Authentication (Schnorr)
 - [x] Transport (HTTP/WS/Nostr)
 - [x] TypeScript SDK ([`implementations/typescript/`](implementations/typescript/))
-- [x] Test suite (470+ unit tests, 31 integration tests)
+- [x] Agent-to-Service communication (`service/call`, optional `to`)
+- [x] Test suite (510+ unit tests, 31 integration tests)
 
 ## Contributing
 

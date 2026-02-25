@@ -57,19 +57,21 @@ export class MessageBuilder {
   build(): UnsignedMessage {
     if (!this._id) throw new Error('id is required');
     if (!this._from) throw new Error('from is required');
-    if (!this._to) throw new Error('to is required');
     if (!this._method) throw new Error('method is required');
     if (this._timestamp === undefined) throw new Error('timestamp is required');
 
-    return {
+    const msg: UnsignedMessage = {
       id: this._id,
       version: this._version,
       from: this._from,
-      to: this._to,
       type: this._type,
       method: this._method,
       payload: this._payload,
       timestamp: this._timestamp,
     };
+    if (this._to) {
+      msg.to = this._to;
+    }
+    return msg;
   }
 }

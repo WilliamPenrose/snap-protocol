@@ -150,12 +150,21 @@ for await (const event of agent.sendStream(
 ### Manual Message Construction
 
 ```typescript
+// Agent-to-Agent (with `to`)
 const unsigned = new MessageBuilder()
   .from(keyPair.address)
   .to('bc1p_target...')
   .method('message/send')
   .payload({ message: { role: 'user', parts: [{ text: 'Hi' }] } })
   .build();
+
+// Agent-to-Service (without `to`) — for authenticating to HTTP services
+const svcMsg = new MessageBuilder()
+  .from(keyPair.address)
+  .method('service/call')
+  .payload({ name: 'query_database', arguments: { sql: 'SELECT 1' } })
+  .build();
+// svcMsg.to is undefined — service verifies sender identity from `from`
 
 const signed = MessageSigner.sign(unsigned, keyPair.privateKey);
 const isValid = MessageSigner.verify(signed);

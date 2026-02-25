@@ -7,7 +7,9 @@ export type MethodName =
   | 'message/stream'
   | 'tasks/get'
   | 'tasks/cancel'
-  | 'tasks/resubscribe';
+  | 'tasks/resubscribe'
+  | 'service/call'
+  | (string & {});
 
 export type TaskState =
   | 'submitted'
@@ -25,7 +27,7 @@ export interface UnsignedMessage {
   id: string;
   version: string;
   from: P2TRAddress;
-  to: P2TRAddress;
+  to?: P2TRAddress;
   type: MessageType;
   method: MethodName;
   payload: Record<string, unknown>;

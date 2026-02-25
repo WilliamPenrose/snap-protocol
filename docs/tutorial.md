@@ -162,6 +162,7 @@ Once deployed, any SNAP agent anywhere in the world can find and talk to yours.
 | **Agent Card** | A profile describing what your agent can do |
 | **Skill** | A capability your agent advertises (e.g., "translation", "code-review") |
 | **Transport** | How agents communicate — HTTP (default), WebSocket, or Nostr |
+| **service/call** | A method for agents to authenticate to plain HTTP services (no API keys needed) |
 
 You don't need to understand the cryptography. The SDK handles signing, verification, and identity management for you.
 
