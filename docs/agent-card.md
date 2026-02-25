@@ -130,7 +130,7 @@ Skills describe what your agent can do:
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `id` | Yes | Unique identifier for the skill |
+| `id` | Yes | Unique within this agent. Used for discovery filtering and programmatic routing |
 | `name` | Yes | Human-readable name |
 | `description` | Yes | What this skill does |
 | `tags` | Yes | Keywords for discovery |

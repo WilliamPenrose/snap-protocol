@@ -43,6 +43,8 @@ SNAP separates **what** is communicated from **how** it is delivered.
 
 **Transport-independent discovery.** An Agent Card is a signed description of an agent's identity and capabilities. It can be published through any medium — Nostr relays, HTTP well-known endpoints, P2P networks, DNS records, or blockchain. Adding a new discovery channel requires only a new transport plugin, not a protocol change.
 
+**Relationship to Nostr.** Nostr is one of SNAP's supported transports — it solves "how messages get from A to B" (relay, encryption, event delivery). SNAP is the application protocol on top — it defines structured methods, agent discovery, task lifecycle, and self-authenticating signatures. An analogy: Nostr is to SNAP as TCP is to HTTP.
+
 ## Identity
 
 Every agent has a **Bitcoin P2TR address** as its unique identifier:

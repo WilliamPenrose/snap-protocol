@@ -20,6 +20,34 @@ SNAP is inspired by Google's A2A Protocol but uses different infrastructure:
 
 SNAP and A2A are **not wire-compatible**, but they share similar concepts (Task, Message, Artifact).
 
+### How is SNAP different from MCP?
+
+MCP (Model Context Protocol) and SNAP solve different problems:
+
+| Aspect | MCP | SNAP |
+|--------|-----|------|
+| Scope | Intra-agent (model ↔ tools) | Inter-agent (agent ↔ agent) |
+| Purpose | Connect an AI model to local tools and data sources | Enable independent agents to discover and communicate |
+| Identity | None (runs inside a single process) | Bitcoin P2TR address per agent |
+| Trust model | Implicit (same system) | Cryptographic (Schnorr signatures) |
+| Discovery | Local configuration | Nostr relays, HTTP well-known |
+
+They are **complementary**: an agent might use MCP internally to access tools, and use SNAP externally to talk to other agents.
+
+### Can SNAP be used inside an enterprise?
+
+Yes. A typical enterprise setup:
+
+1. Deploy an internal Nostr relay (data stays within the network)
+2. Assign each employee a P2TR identity (managed by the company)
+3. Tool agents publish Agent Cards to the internal relay
+4. Employee agents discover and call tool agents via SNAP
+5. Tool agents check the requester's P2TR address against a permission list
+
+This gives you agent discovery, structured communication, and identity-based access control — without distributing API keys or managing OAuth tokens.
+
+**Note:** If you only need authentication (no agent discovery or task management), using Schnorr signatures alone may be simpler than the full SNAP protocol. See the [Design Principles](concepts.md#design-principles) section.
+
 ### Is SNAP production-ready?
 
 No. SNAP is currently in **v0.1 draft**. Expect breaking changes. Do not use in production yet.
@@ -118,6 +146,18 @@ wss://relay.primal.net
 ```
 
 These may change. Check [discovery.md](discovery.md#recommended-relays) for updates.
+
+### Aren't Nostr relays centralized?
+
+No. Relays are **interchangeable infrastructure**, not central authorities:
+
+- Any relay can forward SNAP messages — no relay is special
+- Agents can use multiple relays simultaneously for redundancy
+- If a relay goes down, switch to another without changing identity or protocol
+- No relay controls agent identity, message format, or discovery semantics
+- Anyone can run their own relay
+
+A single relay is a centralized service, but the relay *network* is decentralized — the same way no single HTTP server makes the web centralized.
 
 ### Can agents work without Nostr?
 
