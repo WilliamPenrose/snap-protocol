@@ -35,7 +35,7 @@ Every SNAP message is a JSON object with these fields:
 | `id` | string | Unique message ID (1-128 chars, `[a-zA-Z0-9_-]`) |
 | `version` | string | Protocol version, must be `"0.1"` |
 | `from` | string | Sender P2TR address |
-| `to` | string | Recipient P2TR address |
+| `to` | string | Recipient P2TR address. **Optional** — omit for Agent-to-Service (e.g. `service/call`). |
 | `type` | string | `request`, `response`, or `event` |
 | `method` | string | Method name (e.g. `message/send`) |
 | `payload` | object | Method-specific data (max 1 MB, max depth 10) |
@@ -61,8 +61,11 @@ Verification steps:
 | `tasks/get` | request-response | Get task status |
 | `tasks/cancel` | request-response | Cancel a running task |
 | `tasks/resubscribe` | streaming | Resume a task stream |
+| `service/call` | Agent→Service | Call an HTTP service capability |
 | `agent/card` | request-response | Get agent's capability card |
 | `agent/ping` | request-response | Health check |
+
+Custom methods MAY be used as long as they match `^[a-z]+/[a-z_]+$`.
 
 ## Task States
 
@@ -100,7 +103,7 @@ Optional fields: `endpoints` (HTTP/WS URLs), `nostrRelays`, `protocolVersion`, `
 | Signature | 128 lowercase hex chars (64-byte Schnorr, BIP-340) |
 | Version | Must be `"0.1"` |
 | Payload | Max 1 MB serialized, max depth 10 |
-| Network | `from` and `to` must be same network (both mainnet or both testnet) |
+| Network | If `to` is present, `from` and `to` must be same network (both mainnet or both testnet) |
 
 For complete field constraints, see [references/constraints.md](references/constraints.md).
 

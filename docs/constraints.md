@@ -9,9 +9,9 @@ This document defines validation constraints for all SNAP data structures.
 | `id` | string | 1-128 chars, pattern: `^[a-zA-Z0-9_-]+$` |
 | `version` | string | Major.minor format, pattern: `^\d+\.\d+$` |
 | `from` | string | Valid P2TR address (62 chars) |
-| `to` | string | Valid P2TR address (62 chars) |
+| `to` | string \| undefined | **Optional.** If present, valid P2TR address (62 chars) |
 | `type` | string | Enum: `request`, `response`, `event` |
-| `method` | string | 1-64 chars, pattern: `^[a-z]+/[a-z_]+$` |
+| `method` | string | 1-64 chars, pattern: `^[a-z]+/[a-z_]+$`. Standard methods: `message/send`, `message/stream`, `tasks/get`, `tasks/cancel`, `tasks/resubscribe`, `service/call`. Custom methods MAY be used. |
 | `payload` | object | Max 1 MB serialized, max depth 10 |
 | `timestamp` | integer | Unix seconds (UTC), range: 0 to 2^53-1 |
 | `sig` | string | 128 hex chars (64 bytes Schnorr signature) |
@@ -50,7 +50,7 @@ function validateP2TR(address) {
 
 ### Network Policy
 
-Implementations SHOULD reject mixed networks in a single message:
+When `to` is present, implementations SHOULD reject mixed networks:
 
 | `from` network | `to` network | Valid |
 |----------------|--------------|-------|

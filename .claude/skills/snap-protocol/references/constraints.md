@@ -7,7 +7,7 @@
 | `id` | string | 1-128 chars, pattern: `^[a-zA-Z0-9_-]+$` |
 | `version` | string | Pattern: `^\d+\.\d+$`, current: `"0.1"` |
 | `from` | string | Valid P2TR address (62 chars) |
-| `to` | string | Valid P2TR address (62 chars) |
+| `to` | string \| undefined | **Optional.** If present, valid P2TR address (62 chars) |
 | `type` | string | Enum: `request`, `response`, `event` |
 | `method` | string | 1-64 chars, pattern: `^[a-z]+/[a-z_]+$` |
 | `payload` | object | Max 1 MB serialized, max depth 10 |
@@ -28,7 +28,7 @@ Validation algorithm:
 
 ### Network Policy
 
-Mixed networks in a single message MUST be rejected:
+When `to` is present, mixed networks MUST be rejected:
 
 | `from` | `to` | Valid |
 |--------|------|-------|

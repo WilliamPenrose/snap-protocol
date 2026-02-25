@@ -36,6 +36,7 @@ Where:
 - `||` denotes byte concatenation
 - `'\x00'` is a NULL byte separator (0x00)
 - All string fields (`id`, `from`, `to`, `type`, `method`, `timestamp`) are encoded as **UTF-8 bytes**
+- If `to` is absent (Agent-to-Service), use an **empty string** in its position. The 7-field format and 6 NULL separators remain constant.
 - `canonical_payload` is the payload serialized using [JCS (RFC 8785)](https://www.rfc-editor.org/rfc/rfc8785), then encoded as UTF-8 bytes
 - `timestamp` is the decimal string representation (e.g., `"1770163200"`)
 - The concatenated byte string is then hashed with **SHA-256** before signing
@@ -128,7 +129,7 @@ Recipients must perform these checks in order:
 3. **Check duplicate** — Message ID not seen before (within 120s window)
 4. **Extract public key** — From the `from` P2TR address
 5. **Verify signature** — Against the reconstructed payload
-6. **Check recipient** — `to` field matches own identity
+6. **Check recipient** — If `to` is present, it MUST match the recipient's own identity. If `to` is absent, skip this check.
 
 If any check fails, reject the message with the appropriate error code.
 

@@ -25,7 +25,7 @@ Every SNAP message has this structure:
 | `id` | string | Unique message identifier (UUID v4 recommended, must be unique per sender within 120s) |
 | `version` | string | Protocol version (e.g., "0.1") |
 | `from` | string | Sender's P2TR address |
-| `to` | string | Recipient's P2TR address |
+| `to` | string | Recipient's P2TR address. **Optional** — omit when targeting an HTTP service (see [Agent-to-Service](#servicecall)). |
 | `type` | string | `request`, `response`, or `event` |
 | `method` | string | The operation being performed |
 | `payload` | object | Method-specific data |
@@ -48,15 +48,18 @@ The `event` type is only used during streaming. See [Transport - Streaming Event
 
 SNAP supports the following request methods (inspired by [A2A](https://github.com/a2aproject/A2A)):
 
-| Method              | Description                                |
-|---------------------|--------------------------------------------|
-| `message/send`      | Send a message to start or continue a task |
-| `message/stream`    | Send a message with streaming response     |
-| `tasks/get`         | Get the current state of a task            |
-| `tasks/cancel`      | Cancel a running task                      |
-| `tasks/resubscribe` | Resume streaming updates for a task        |
+| Method              | Category        | Description                                |
+|---------------------|:---------------:|--------------------------------------------|
+| `message/send`      | Agent↔Agent     | Send a message to start or continue a task |
+| `message/stream`    | Agent↔Agent     | Send a message with streaming response     |
+| `tasks/get`         | Agent↔Agent     | Get the current state of a task            |
+| `tasks/cancel`      | Agent↔Agent     | Cancel a running task                      |
+| `tasks/resubscribe` | Agent↔Agent     | Resume streaming updates for a task        |
+| `service/call`      | Agent→Service   | Call a service capability                  |
 
 Streaming methods (`message/stream`, `tasks/resubscribe`) return a stream of `event` messages followed by a final `response`. Non-streaming methods return a single `response`.
+
+The `method` field MUST match the pattern `^[a-z]+/[a-z_]+$` (1–64 chars). The protocol defines the methods listed above. Implementations MAY support additional custom methods as long as they match this pattern.
 
 ## message/send
 
@@ -327,6 +330,37 @@ Resume streaming updates for a task after a connection interruption. The request
 **Response:** Same as `message/stream` — a sequence of `event` messages followed by a final `response`.
 
 See [Transport - Stream Recovery](transport.md#stream-recovery-tasksresubscribe) for resume behavior.
+
+## service/call
+
+Call a capability on an HTTP service. Unlike Agent-to-Agent methods, `service/call` messages omit the `to` field — the service does not need a P2TR identity. The service verifies the sender's signature and checks the `from` address against an allowlist.
+
+**Request:**
+
+```json
+{
+  "id": "svc-001",
+  "version": "0.1",
+  "from": "bc1p...requester",
+  "type": "request",
+  "method": "service/call",
+  "payload": {
+    "name": "query_database",
+    "arguments": {
+      "sql": "SELECT * FROM users LIMIT 10"
+    }
+  },
+  "timestamp": 1770163200,
+  "sig": "e5b7a9c3..."
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | The name of the service capability to invoke |
+| `arguments` | object | No | Arguments for the capability |
+
+**Response:** The response format is defined by the service, not by the SNAP protocol. Since the response comes from a plain HTTP service rather than a SNAP agent, it is not a SNAP message.
 
 ## Task States
 
