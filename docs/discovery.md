@@ -1,6 +1,8 @@
 # Discovery
 
-SNAP uses **Nostr** for decentralized agent discovery. Agents publish their capabilities to Nostr relays, and other agents query relays to find them.
+> **This layer is optional.** If you only need authentication (Auth layer), skip this document. See [Authentication](authentication.md) for the standalone Auth layer.
+
+SNAP's Discovery layer lets agents publish their capabilities and find each other. The primary mechanism is **Nostr relays**, with **HTTP well-known** as an alternative. You can use either, both, or neither — Auth works without Discovery.
 
 ## Nostr Event Types
 

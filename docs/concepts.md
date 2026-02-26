@@ -45,6 +45,59 @@ SNAP separates **what** is communicated from **how** it is delivered.
 
 **Relationship to Nostr.** Nostr is one of SNAP's supported transports — it solves "how messages get from A to B" (relay, encryption, event delivery). SNAP is the application protocol on top — it defines structured methods, agent discovery, task lifecycle, and self-authenticating signatures. An analogy: Nostr is to SNAP as TCP is to HTTP.
 
+## Protocol Architecture
+
+SNAP has three layers. Use as many as you need.
+
+```text
+┌─────────────────────────────────────────────┐
+│  Communication                              │
+│  message/send · tasks/* · streaming         │
+├─────────────────────────────────────────────┤
+│  Discovery                                  │
+│  Agent Card · Nostr relays · HTTP well-known│
+├─────────────────────────────────────────────┤
+│  Auth (core)                                │
+│  P2TR identity · Schnorr signatures         │
+│  Timestamp freshness · Replay protection    │
+└─────────────────────────────────────────────┘
+```
+
+### Auth (core) — "Who are you?"
+
+Self-sovereign identity and cryptographic authentication.
+
+- P2TR identity — generate a key, derive an address, you have an identity (no registration)
+- Schnorr signatures (BIP-340) — every message is self-authenticating
+- Timestamp freshness (±60s) and replay protection
+- SDK: `KeyManager` + `MessageBuilder` + `MessageSigner` + `MessageValidator`
+
+### Discovery — "Where are you, and what can you do?"
+
+Publish and find agent capabilities.
+
+- Agent Cards — name, skills, endpoints
+- Nostr relays (kind 31337) and HTTP well-known (`/.well-known/snap-agent.json`)
+- SDK: `AgentCardBuilder` + `NostrTransport.publishAgentCard` / `discoverAgents`
+
+### Communication — "Let's work together."
+
+Structured methods and task lifecycle for agent-to-agent interaction.
+
+- Standard methods: `message/send`, `message/stream`, `tasks/get`, `tasks/cancel`
+- Task lifecycle: submitted → working → completed
+- Transport plugins: HTTP, WebSocket, Nostr
+- SDK: `SnapAgent` + transport plugins
+
+### Mix and match
+
+| Combination | Example |
+|-------------|---------|
+| Auth only | HTTP service validates caller identity via `service/call` — no API keys |
+| Auth + Discovery | Find agents on Nostr, then communicate using your own API |
+| Auth + Communication | Known address, send structured messages directly via HTTP |
+| All three | Full agent-to-agent: discover, connect, collaborate |
+
 ## Identity
 
 Every agent has a **Bitcoin P2TR address** as its unique identifier:

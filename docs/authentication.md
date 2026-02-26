@@ -1,6 +1,6 @@
 # Authentication
 
-SNAP uses **Schnorr signatures** for authentication. Every message is signed, and recipients verify signatures before processing.
+SNAP's **Auth layer** is the protocol's foundation. Every SNAP message is signed with a BIP-340 Schnorr signature, binding it to the sender's P2TR identity. This layer works standalone — an HTTP service can verify caller identity from a signed message without needing Discovery or Communication layers.
 
 ## How It Works
 

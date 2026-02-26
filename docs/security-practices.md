@@ -1,6 +1,6 @@
 # Security Best Practices
 
-This document provides security guidance for implementing and deploying SNAP Protocol agents.
+This document provides security guidance for SNAP implementations. It covers all three layers — **Auth-only** (`service/call`), **Discovery** (Agent Cards, Nostr), and **Communication** (tasks, streaming). Sections are labeled by layer so you can focus on what you use.
 
 ## Key Management
 
@@ -153,7 +153,7 @@ def handle_sensitive_request(request):
     return response
 ```
 
-## Transport Security
+## Transport Security (Discovery + Communication layers)
 
 ### HTTPS Requirements
 
@@ -219,8 +219,9 @@ def process_message(raw_input):
         raise InvalidMessageError("Malformed JSON")
 
     # Layer 2: Check structure
-    required_fields = ["id", "version", "from", "to", "type",
+    required_fields = ["id", "version", "from", "type",
                        "method", "payload", "timestamp", "sig"]
+    # Note: "to" is optional (omitted in Agent-to-Service / service/call)
     for field in required_fields:
         if field not in message:
             raise InvalidMessageError(f"Missing field: {field}")
@@ -231,8 +232,8 @@ def process_message(raw_input):
     # Layer 4: Verify signature
     verify_signature(message)
 
-    # Layer 5: Verify recipient (is this message for me?)
-    if message["to"] != my_identity:
+    # Layer 5: Verify recipient (if addressed to a specific agent)
+    if "to" in message and message["to"] != my_identity:
         raise InvalidMessageError("Message not addressed to me")
 
     # Now safe to process

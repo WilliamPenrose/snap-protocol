@@ -4,10 +4,15 @@ This guide helps you implement SNAP Protocol support in your application.
 
 ## Overview
 
-Implementing SNAP involves three main components:
-1. **Cryptography** - Key management and signature verification
-2. **Messaging** - Message construction and validation
-3. **Transport** - HTTP, WebSocket, or Nostr communication
+SNAP has three layers. Implement the layers you need:
+
+| Layer | Steps | Required? |
+|-------|-------|-----------|
+| **Auth (core)** | 1 (Key Generation), 4 (Sign), 5 (Verify), 6 (HTTP Transport) | Yes |
+| **Discovery** | 2 (Agent Card), 3 (Publish to Nostr), 7 (Discover Agents) | Optional |
+| **Communication** | Message/task handling in Step 6 | Optional (extends Auth) |
+
+**Auth only?** Implement Steps 1, 4, 5, and a simplified Step 6 (just signature verification + allowlist). Skip Steps 2, 3, 7.
 
 ## Prerequisites
 
@@ -83,7 +88,7 @@ identity = encode_p2tr(output_key)  # bc1p...
 - Never expose private key in logs or API responses
 - Use environment variables or secure key stores
 
-### Step 2: Create Agent Card
+### Step 2: Create Agent Card (Discovery — optional)
 
 Define your agent's capabilities.
 
@@ -112,7 +117,7 @@ agent_card = {
 
 Validate against [constraints.md](constraints.md) before publishing.
 
-### Step 3: Publish to Nostr
+### Step 3: Publish to Nostr (Discovery — optional)
 
 Make your agent discoverable.
 
@@ -307,7 +312,7 @@ def send_snap_request(endpoint, message, private_key):
     return response_message
 ```
 
-### Step 7: Implement Discovery
+### Step 7: Implement Discovery (Discovery — optional)
 
 Find agents on Nostr.
 

@@ -1,6 +1,8 @@
 # Messages
 
-SNAP messages are JSON objects that carry requests and responses between agents.
+SNAP messages are self-authenticating JSON objects. Each message carries a Schnorr signature that binds it to the sender's P2TR identity.
+
+At the **Auth layer**, messages can be used standalone for service authentication (`service/call`). The **Communication layer** adds structured methods for agent-to-agent collaboration (`message/send`, `tasks/*`).
 
 ## Message Structure
 
@@ -332,6 +334,8 @@ Resume streaming updates for a task after a connection interruption. The request
 See [Transport - Stream Recovery](transport.md#stream-recovery-tasksresubscribe) for resume behavior.
 
 ## service/call
+
+> **Auth layer only.** This method requires only the Auth layer — no Discovery or Communication layer needed. The service does not need to be a SNAP agent.
 
 Call a capability on an HTTP service. Unlike Agent-to-Agent methods, `service/call` messages omit the `to` field — the service does not need a P2TR identity. The service verifies the sender's signature and checks the `from` address against an allowlist.
 

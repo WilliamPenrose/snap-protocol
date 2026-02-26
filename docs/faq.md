@@ -48,6 +48,12 @@ This gives you agent discovery, structured communication, and identity-based acc
 
 **Note:** If you only need authentication (no agent discovery or task management), using Schnorr signatures alone may be simpler than the full SNAP protocol. See the [Design Principles](concepts.md#design-principles) section.
 
+### Can I use SNAP just for authentication?
+
+Yes. The Auth layer works standalone. Use `service/call` messages — the agent signs with its P2TR identity, and the service verifies the signature and checks an allowlist. No Discovery (Nostr, Agent Cards) or Communication layer (tasks, streaming) needed.
+
+See [Authentication](authentication.md) for the Auth layer and [Messages — service/call](messages.md#servicecall) for the method.
+
 ### Is SNAP production-ready?
 
 No. SNAP is currently in **v0.1 draft**. Expect breaking changes. Do not use in production yet.

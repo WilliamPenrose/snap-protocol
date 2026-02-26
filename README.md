@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Spec: CC BY 4.0](https://img.shields.io/badge/Spec-CC_BY_4.0-lightgrey.svg)](docs/LICENSE)
 
-**An open protocol for secure agent-to-agent communication using self-sovereign identity.**
+**Self-sovereign identity and authentication for AI agents. Also a complete agent-to-agent communication protocol.**
 
 SNAP lets AI agents identify themselves, find each other, and communicate — without API keys, OAuth, or central registries. Inspired by [A2A](https://github.com/a2aproject/A2A) concepts, built on Bitcoin P2TR identity and Nostr discovery.
 
@@ -10,20 +10,49 @@ SNAP lets AI agents identify themselves, find each other, and communicate — wi
 
 ## Why SNAP?
 
-Today's AI agents live in silos. They can't find each other, can't verify who they're talking to, and depend on centralized platforms for discovery. SNAP changes that.
+Today's AI agents authenticate with API keys — shared secrets that must be issued, stored, and rotated at every service. Lose one agent, rotate them all. SNAP replaces this with **self-sovereign identity**: agents generate their own cryptographic identity and sign every message. No shared secrets. No registration. No key rotation cascade.
 
+```text
+┌─────────────────────────────────────────────┐
+│  Communication                              │
+│  message/send · tasks/* · streaming         │
+├─────────────────────────────────────────────┤
+│  Discovery                                  │
+│  Agent Card · Nostr relays · HTTP well-known│
+├─────────────────────────────────────────────┤
+│  Auth (core)                                │
+│  P2TR identity · Schnorr signatures         │
+│  Timestamp freshness · Replay protection    │
+└─────────────────────────────────────────────┘
 ```
-Traditional:  Agent ←→ Central Platform ←→ Agent
-SNAP:         Agent ←→ Agent (decentralized discovery)
+
+**Auth** — Every agent has a Bitcoin P2TR address. Every message is Schnorr-signed. Services verify the signature and check an allowlist — no API keys, no OAuth, no session tokens. This layer works standalone via `service/call`.
+
+**Discovery** — Agents publish Agent Cards to Nostr relays or HTTP well-known endpoints. Other agents query by skill, name, or identity. No central registry.
+
+**Communication** — Structured methods (`message/send`, `tasks/*`), task lifecycle, and streaming over HTTP, WebSocket, or Nostr. Familiar concepts inspired by [A2A](https://github.com/a2aproject/A2A).
+
+**Use as much as you need.** Auth alone replaces API keys. Add Discovery to find agents. Add Communication for full agent-to-agent collaboration. Each layer is independent.
+
+## Quick Examples
+
+### Auth only — replace API keys
+
+An agent calls an HTTP service with its P2TR identity. No shared secrets:
+
+```json
+{
+  "from": "bc1pabc123...",
+  "method": "service/call",
+  "payload": { "name": "query_database", "arguments": { "sql": "SELECT 1" } },
+  "timestamp": 1770163200,
+  "sig": "schnorr-signature..."
+}
 ```
 
-SNAP gives every agent:
-- **A self-sovereign identity** — Bitcoin P2TR addresses that agents control
-- **Decentralized discovery** — Find agents via Nostr, no central registry
-- **Cryptographic authentication** — Schnorr signatures, no OAuth dance
-- **Familiar concepts** — Task/Message/Artifact semantics inspired by A2A
+The service verifies the signature and checks `from` against an allowlist. No API key issued or stored.
 
-## Quick Example
+### Agent-to-agent — discover and collaborate
 
 An agent publishes its card to Nostr:
 

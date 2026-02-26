@@ -257,6 +257,8 @@ Non-streaming methods (`message/send`, `tasks/get`, `tasks/cancel`) can also be 
 
 ## Nostr Transport
 
+> **Requires Discovery layer.** Nostr transport routes messages via public key, which requires the recipient's Agent Card for address resolution. HTTP and WebSocket transports work with Auth layer alone.
+
 Fallback transport using encrypted Nostr direct messages. Useful when the agent's HTTP/WebSocket endpoints are unreachable, or for offline messaging.
 
 Nostr does not support streaming. It is request-response only.

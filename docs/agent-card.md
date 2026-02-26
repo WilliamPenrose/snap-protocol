@@ -1,5 +1,7 @@
 # Agent Card
 
+> **Discovery layer — optional.** Agent Cards are only needed if you publish your agent for discovery or advertise task-based capabilities. Auth-only use cases (`service/call` with known endpoints) do not require Agent Cards.
+
 An **Agent Card** is a JSON document that describes an agent's identity, capabilities, and how to communicate with it.
 
 ## Basic Structure
