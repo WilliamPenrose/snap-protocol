@@ -2,55 +2,102 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Spec: CC BY 4.0](https://img.shields.io/badge/Spec-CC_BY_4.0-lightgrey.svg)](docs/LICENSE)
 
-**Self-sovereign identity and authentication for AI agents. Also a complete agent-to-agent communication protocol.**
+**AI agents authenticate themselves with a keypair instead of API keys.**
 
-SNAP lets AI agents identify themselves, find each other, and communicate — without API keys, OAuth, or central registries. Inspired by [A2A](https://github.com/a2aproject/A2A) concepts, built on Bitcoin P2TR identity and Nostr discovery.
-
-> **New to SNAP?** Read [Use Cases & Design Thinking](docs/use-cases.md) to understand why agents need their own identity system.
-
-## Why SNAP?
-
-Today's AI agents authenticate with API keys — shared secrets that must be issued, stored, and rotated at every service. Lose one agent, rotate them all. SNAP replaces this with **self-sovereign identity**: agents generate their own cryptographic identity and sign every message. No shared secrets. No registration. No key rotation cascade.
+Agent generates a key. Agent signs its requests. Service verifies the signature. Done. No API keys to provision. No OAuth to configure. No CA to run.
 
 ```text
-┌─────────────────────────────────────────────┐
-│  Communication                              │
-│  message/send · tasks/* · streaming         │
-├─────────────────────────────────────────────┤
-│  Discovery                                  │
-│  Agent Card · Nostr relays · HTTP well-known│
-├─────────────────────────────────────────────┤
-│  Auth (core)                                │
-│  P2TR identity · Schnorr signatures         │
-│  Timestamp freshness · Replay protection    │
-└─────────────────────────────────────────────┘
+Traditional:  Agent gets credentials from a trusted 3rd party (CA, IdP, admin) → service trusts the 3rd party
+SNAP:         Agent generates its own keypair → signs requests → service verifies directly (no 3rd party needed)
 ```
 
-**Auth** — Every agent has a Bitcoin P2TR address. Every message is Schnorr-signed. Services verify the signature and check an allowlist — no API keys, no OAuth, no session tokens. This layer works standalone via `service/call`.
+## How it works
 
-**Discovery** — Agents publish Agent Cards to Nostr relays or HTTP well-known endpoints. Other agents query by skill, name, or identity. No central registry.
-
-**Communication** — Structured methods (`message/send`, `tasks/*`), task lifecycle, and streaming over HTTP, WebSocket, or Nostr. Familiar concepts inspired by [A2A](https://github.com/a2aproject/A2A).
-
-**Use as much as you need.** Auth alone replaces API keys. Add Discovery to find agents. Add Communication for full agent-to-agent collaboration. Each layer is independent.
-
-## Quick Examples
-
-### Auth only — replace API keys
-
-An agent calls an HTTP service with its P2TR identity. No shared secrets:
-
-```json
+```text
+POST /api/tasks
 {
   "from": "bc1pabc123...",
   "method": "service/call",
   "payload": { "name": "query_database", "arguments": { "sql": "SELECT 1" } },
   "timestamp": 1770163200,
-  "sig": "schnorr-signature..."
+  "sig": "e5b7a9c3..."
 }
 ```
 
-The service verifies the signature and checks `from` against an allowlist. No API key issued or stored.
+The service verifies the [Schnorr signature](docs/authentication.md) and checks `from` against an allowlist of public keys. No shared secret ever exists.
+
+> **Why is this better than API keys?** Public keys are not secrets. You can store allowlists in plaintext, commit them to git, even publish them. Leaking an allowlist has no cryptographic impact. Leaking an API key is a security incident. See [Design Decisions](docs/design-decisions.md) for the full trade-off analysis.
+
+> **Does this require Bitcoin?** No. SNAP uses Bitcoin's cryptographic standards (Schnorr signatures, bech32m encoding) but has zero dependency on the Bitcoin network. No blockchain, no transactions. [Details →](docs/design-decisions.md#does-snap-actually-require-bitcoin)
+
+## Quick start
+
+```bash
+npm install @snap-protocol/core
+```
+
+**Sign a request** (agent side):
+
+```typescript
+import { randomBytes, randomUUID } from 'crypto';
+import { KeyManager, MessageBuilder, MessageSigner } from '@snap-protocol/core';
+
+const privateKey = randomBytes(32).toString('hex');
+const { address } = KeyManager.deriveKeyPair(privateKey);
+const signer = new MessageSigner(privateKey);
+
+const signed = signer.sign(
+  new MessageBuilder()
+    .id(randomUUID())
+    .from(address)
+    .method('service/call')
+    .payload({ name: 'query_database', arguments: { sql: 'SELECT 1' } })
+    .timestamp(Math.floor(Date.now() / 1000))
+    .build()
+);
+```
+
+**Verify** (service side):
+
+```typescript
+import { MessageValidator } from '@snap-protocol/core';
+
+MessageValidator.validate(signed);   // throws if signature/timestamp invalid
+
+const allowlist = ['bc1p...agent1', 'bc1p...agent2'];
+if (!allowlist.includes(signed.from)) throw new Error('Not authorized');
+// See security-practices.md for rate limiting and replay protection
+```
+
+That's Auth. For the full agent-to-agent experience (discovery, tasks, streaming), see the [Tutorial](docs/tutorial.md).
+
+## Beyond auth: three independent layers
+
+SNAP's core is authentication. Discovery and communication are optional layers you add when you need them:
+
+```text
+┌─────────────────────────────────────────────┐
+│  Communication (optional)                   │
+│  message/send · tasks/* · streaming         │
+├─────────────────────────────────────────────┤
+│  Discovery (optional)                       │
+│  Agent Card · Nostr relays · HTTP well-known│
+├─────────────────────────────────────────────┤
+│  Auth (core)                                │
+│  Keypair identity · Schnorr signatures      │
+│  Timestamp freshness · Replay protection    │
+└─────────────────────────────────────────────┘
+```
+
+**Auth (core)** — Every agent has a cryptographic identity ([P2TR address](docs/concepts.md#identity)). Every message is signed. Services verify the signature and check an allowlist. This layer works standalone via [`service/call`](docs/messages.md#servicecall).
+
+**Discovery (optional)** — Agents publish capability cards to [Nostr relays](docs/discovery.md) or [HTTP well-known](docs/agent-card.md#http-well-known) endpoints. Other agents query by skill, name, or identity.
+
+**Communication (optional)** — Structured methods (`message/send`, `tasks/*`), task lifecycle, and streaming over HTTP, WebSocket, or Nostr. Concepts inspired by [A2A](https://github.com/a2aproject/A2A).
+
+**Use as much as you need.** Auth alone replaces API keys. Add Discovery to find agents. Add Communication for full agent-to-agent collaboration.
+
+## More examples
 
 ### Agent-to-agent — discover and collaborate
 
@@ -86,7 +133,7 @@ Another agent finds it and sends a request:
     }
   },
   "timestamp": 1770163200,
-  "sig": "schnorr-signature..."
+  "sig": "a1b2c3d4..."
 }
 ```
 
@@ -123,43 +170,13 @@ That's it. No API keys. No OAuth. No central registry.
 | [Agent Skills](.claude/skills/snap-protocol/)   | Skills for AI coding agents (Claude Code, Cursor, Codex, etc.)  |
 | [llms.txt](llms.txt)                            | Documentation index for MCP tools (Context7, mcpdoc)            |
 
-### Install SNAP Skills into Your Project
+Install skills: `npx skills add WilliamPenrose/snap-protocol` — see [skills setup guide](.claude/skills/snap-protocol/) for IDE integration.
 
-```bash
-npx skills add WilliamPenrose/snap-protocol
-```
+## Relationship to other protocols
 
-This installs to `.agents/skills/`. To enable auto-loading in Claude Code, create a symlink:
+**MCP** defines how agents discover and call tools. SNAP adds an authentication layer on top — wrap any MCP tool call in a SNAP [`service/call`](docs/messages.md#servicecall) envelope and the service can verify the caller's identity via signature instead of API keys.
 
-```bash
-mkdir -p .claude/skills
-# Linux / macOS
-ln -s ../../.agents/skills/snap-protocol .claude/skills/snap-protocol
-# Windows
-mklink /D .claude\skills\snap-protocol .agents\skills\snap-protocol
-```
-
-## Relationship to A2A
-
-SNAP is **inspired by** [Google's A2A Protocol](https://github.com/a2aproject/A2A) and adopts similar semantic concepts:
-
-- Task, Message, Artifact, Part — similar structures
-- AgentCard, Skill — extended with identity fields
-- Task lifecycle states — similar state machine
-
-**Note**: SNAP is not wire-compatible with A2A. They use different message formats and authentication mechanisms.
-
-### Key Differences
-
-| Aspect | A2A | SNAP |
-|--------|-----|------|
-| Wire format | JSON-RPC 2.0 | Custom envelope with signature |
-| Identity | URL/Domain | Bitcoin P2TR address |
-| Discovery | `/.well-known/agent.json` | Nostr events + `/.well-known/snap-agent.json` |
-| Authentication | HTTP layer (OAuth/API Key) | Message layer (Schnorr signature) |
-| Transport | HTTP | HTTP, WebSocket, Nostr |
-
-If you know A2A concepts, you'll find SNAP familiar — but the protocols do not interoperate directly.
+**A2A** — SNAP is **inspired by** [Google's A2A Protocol](https://github.com/a2aproject/A2A) and adopts similar semantic concepts (Task, Message, AgentCard) but uses a different wire format with built-in Schnorr authentication. Not wire-compatible. See [Design Decisions](docs/design-decisions.md#relationship-to-a2a) for a detailed comparison.
 
 ## Project Status
 

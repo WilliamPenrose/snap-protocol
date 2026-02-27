@@ -161,7 +161,7 @@ The security model is fundamentally different:
 | Compromise radius | Every service sharing that key is compromised | Only messages signed by that key are affected |
 | Storage requirements | Must be encrypted at rest, never logged | Can be stored in plaintext, logged freely |
 
-The allowlist is simpler because **public keys are not secrets**. You can store them in a config file, commit them to git, print them on a website. Leaking an allowlist has zero security impact. Leaking an API key is a security incident.
+The allowlist is simpler because **public keys are not secrets**. You can store them in a config file, commit them to git, print them on a website. Leaking an allowlist has no cryptographic impact. Leaking an API key is a security incident.
 
 ### When direct trust doesn't scale
 
@@ -256,6 +256,26 @@ Each has trade-offs that make it less suitable as a **default** discovery mechan
 | IPFS / IPNS | Agent discovery is a mutable data problem; IPNS has slow propagation |
 
 None of these are ruled out as future options — they simply weren't the best default choice for v0.1.
+
+## Relationship to A2A
+
+SNAP is **inspired by** [Google's A2A Protocol](https://github.com/a2aproject/A2A) and adopts similar semantic concepts:
+
+- Task, Message, Artifact, Part — similar structures
+- AgentCard, Skill — extended with identity fields
+- Task lifecycle states — similar state machine
+
+However, the protocols are not wire-compatible:
+
+| Aspect | A2A | SNAP |
+|--------|-----|------|
+| Wire format | JSON-RPC 2.0 | Custom envelope with signature |
+| Identity | URL/Domain | Bitcoin P2TR address |
+| Discovery | `/.well-known/agent.json` | Nostr events + `/.well-known/snap-agent.json` |
+| Authentication | HTTP layer (OAuth/API Key) | Message layer (Schnorr signature) |
+| Transport | HTTP | HTTP, WebSocket, Nostr |
+
+If you know A2A concepts, you'll find SNAP familiar — but the protocols do not interoperate directly.
 
 ## Further reading
 
