@@ -16,6 +16,7 @@
 - [Tutorial](docs/tutorial.md): Step-by-step guide to building SNAP agents
 - [Implementation Guide](docs/implementation-guide.md): Building an SDK from scratch
 - [Use Cases](docs/use-cases.md): Real-world application scenarios
+- [Design Decisions](docs/design-decisions.md): Why SNAP chose its approach (vs mTLS, JWT, DID, etc.)
 - [FAQ](docs/faq.md): Frequently asked questions
 - [Versioning](docs/versioning.md): Protocol version policy
 

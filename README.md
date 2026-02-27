@@ -101,6 +101,7 @@ That's it. No API keys. No OAuth. No central registry.
 | [Tutorial](docs/tutorial.md) | Build your first SNAP agent (10 min) |
 | [Use Cases](docs/use-cases.md) | Why agents need self-sovereign identity |
 | [Core Concepts](docs/concepts.md) | Identity, discovery, and authentication basics |
+| [Design Decisions](docs/design-decisions.md) | Why SNAP chose X over Y (mTLS, JWT, DID, etc.) |
 
 **Specification:**
 

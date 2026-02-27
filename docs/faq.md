@@ -54,6 +54,12 @@ Yes. The Auth layer works standalone. Use `service/call` messages — the agent 
 
 See [Authentication](authentication.md) for the Auth layer and [Messages — service/call](messages.md#servicecall) for the method.
 
+### Why isn't key rotation supported?
+
+Key rotation is a complex problem with multiple valid approaches (signed rotation statements, domain anchoring, key hierarchies, social recovery, Tapscript policies). Rather than pick one prematurely, v0.1 keeps the identity model simple. Domain-verified agents can rotate via DNS record updates today.
+
+See [Design Decisions — Key rotation](design-decisions.md#key-rotation-or-lack-thereof) for the full reasoning and current workarounds.
+
 ### Is SNAP production-ready?
 
 No. SNAP is currently in **v0.1 draft**. Expect breaking changes. Do not use in production yet.
@@ -63,6 +69,18 @@ No. SNAP is currently in **v0.1 draft**. Expect breaking changes. Do not use in 
 No fixed timeline. SNAP is evolving based on real-world usage and community feedback. Follow the GitHub repository for updates.
 
 ## Identity & Security
+
+### Why not mTLS / OAuth / JWT?
+
+SNAP authenticates at the **message layer** rather than the transport layer. This makes authentication transport-agnostic (works over HTTP, WebSocket, Nostr, or any other channel) and eliminates the need for centralized token issuers.
+
+For a detailed comparison with mTLS, OAuth, JWT, and DIDs, see [Design Decisions](design-decisions.md#why-message-layer-authentication-vs-mtls-oauth-jwt).
+
+### Does SNAP require Bitcoin?
+
+**No.** SNAP uses Bitcoin's cryptographic standards (BIP-340 Schnorr, BIP-341 Taproot tweak, bech32m encoding) but has **zero dependency on the Bitcoin network**. No blockchain, no transactions, no node. The secp256k1 curve is a mathematical construct also used by Ethereum and Nostr.
+
+See [Design Decisions — Does SNAP actually require Bitcoin?](design-decisions.md#does-snap-actually-require-bitcoin) for details.
 
 ### Why Bitcoin P2TR addresses instead of hex public keys?
 
